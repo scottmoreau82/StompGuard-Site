@@ -1,0 +1,138 @@
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Share+Tech+Mono&family=Inter:wght@300;400;500;600&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --color-black: #080808;
+  --color-surface: #111111;
+  --color-surface2: #1a1a1a;
+  --color-gunmetal: #2a2a2a;
+  --color-chrome: #C8C8C8;
+  --color-chrome-hi: #E8E8E8;
+  --color-chrome-lo: #888888;
+  --color-red: #8B0000;
+  --color-red-hi: #B00000;
+  --color-text: #F0F0F0;
+  --color-muted: #777777;
+  
+  --font-bebas: 'Bebas Neue', sans-serif;
+  --font-mono: 'Share Tech Mono', monospace;
+  --font-sans: 'Inter', sans-serif;
+}
+
+:root {
+  --black:     #080808;
+  --surface:   #111111;
+  --surface2:  #1a1a1a;
+  --gunmetal:  #2a2a2a;
+  --chrome:    #C8C8C8;
+  --chrome-hi: #E8E8E8;
+  --chrome-lo: #888888;
+  --red:       #8B0000;
+  --red-hi:    #B00000;
+  --text:      #F0F0F0;
+  --muted:     #777777;
+  --font-head: 'Bebas Neue', sans-serif;
+  --font-mono: 'Share Tech Mono', monospace;
+  --font-body: 'Inter', sans-serif;
+}
+
+/* Custom Base styles */
+.theme-preview-container {
+  background: var(--black);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-weight: 400;
+  overflow-x: hidden;
+  position: relative;
+  border: 1px solid rgba(200,200,200,0.1);
+}
+
+/* ── SCANLINE OVERLAY ── */
+.scanline::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.03) 2px,
+    rgba(0,0,0,0.03) 4px
+  );
+  pointer-events: none;
+  z-index: 100;
+}
+
+/* ── HEX GRID TEXTURE ── */
+.hex-grid::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='52' viewBox='0 0 60 52' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M15 0 L45 0 L60 26 L45 52 L15 52 L0 26Z' fill='none' stroke='rgba(200,200,200,0.03)' stroke-width='1'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 99;
+  opacity: 1;
+}
+
+/* ── POLYGON CLIPS ── */
+.clip-hexagon {
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+}
+
+.clip-corner-sm {
+  clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 6px 100%, 0 calc(100% - 6px));
+}
+
+.clip-corner-md {
+  clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+}
+
+.clip-corner-lg {
+  clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 16px 100%, 0 calc(100% - 16px));
+}
+
+.clip-corner-xl {
+  clip-path: polygon(0 0, calc(100% - 24px) 0, 100% 24px, 100% 100%, 24px 100%, 0 calc(100% - 24px));
+}
+
+.clip-card-header {
+  clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+}
+
+.clip-stamp {
+  clip-path: polygon(24px 0, 100% 0, 100% 100%, 0 100%, 0 24px);
+}
+
+.clip-spec-card {
+  clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%);
+}
+
+/* ── STATUS TICKER ANIMATION ── */
+@keyframes ticker {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+.status-ticker-animate {
+  display: flex;
+  animation: ticker 35s linear infinite;
+  white-space: nowrap;
+}
+
+/* ── ENTRY ANIMATIONS ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-up-1 { animation: fadeUp 0.5s 0.1s both; }
+.animate-fade-up-2 { animation: fadeUp 0.5s 0.25s both; }
+.animate-fade-up-3 { animation: fadeUp 0.5s 0.4s both; }
+.animate-fade-up-4 { animation: fadeUp 0.5s 0.55s both; }
+.animate-fade-up-5 { animation: fadeUp 0.6s 0.3s both; }
+
+/* Custom styles for line drawings in titles */
+.line-chrome {
+  -webkit-text-stroke: 1px var(--chrome-lo);
+  color: transparent;
+}

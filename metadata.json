@@ -1,0 +1,6 @@
+{
+  "name": "StompGuard",
+  "description": "StompGuard Tactical Tone Shopify Online Store 2.0 Theme Editor and Storefront",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
