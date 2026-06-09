@@ -403,6 +403,141 @@ nav::before {
   .cart-drawer.open { transform: translateY(0); }
 }
 
+/* ── INFO MODAL ── */
+.info-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.8);
+  z-index: 10000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.info-overlay.open { opacity: 1; pointer-events: all; }
+
+.info-modal {
+  background: var(--surface);
+  border: 1px solid rgba(200,200,200,0.08);
+  width: 100%;
+  max-width: 600px;
+  max-height: 85vh;
+  overflow-y: auto;
+  clip-path: polygon(0 0, calc(100% - 24px) 0, 100% 24px, 100% 100%, 24px 100%, 0 calc(100% - 24px));
+  position: relative;
+  transform: translateY(20px);
+  transition: transform 0.3s;
+}
+
+.info-overlay.open .info-modal { transform: translateY(0); }
+
+.info-modal::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--chrome), var(--red), var(--chrome), transparent);
+}
+
+.info-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem;
+  border-bottom: 1px solid rgba(200,200,200,0.06);
+  position: sticky;
+  top: 0;
+  background: var(--surface);
+  z-index: 2;
+}
+
+.info-modal-title {
+  font-family: var(--font-head);
+  font-size: 1.4rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--chrome-hi);
+}
+
+.info-close {
+  background: transparent;
+  border: 1px solid var(--gunmetal);
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  padding: 6px 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.info-close:hover { border-color: var(--chrome-lo); color: var(--chrome-hi); }
+
+.info-modal-body {
+  padding: 2rem 1.5rem;
+}
+
+.info-section {
+  margin-bottom: 2rem;
+}
+
+.info-section:last-child { margin-bottom: 0; }
+
+.info-section-title {
+  font-family: var(--font-head);
+  font-size: 1rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--chrome-hi);
+  margin-bottom: 0.6rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid rgba(200,200,200,0.06);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.info-section-title::before {
+  content: '//';
+  color: var(--red);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+}
+
+.info-section p, .info-section li {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--muted);
+  line-height: 1.8;
+  letter-spacing: 0.03em;
+}
+
+.info-section ul {
+  list-style: none;
+  padding: 0;
+}
+
+.info-section ul li {
+  padding-left: 1rem;
+  position: relative;
+  margin-bottom: 0.4rem;
+}
+
+.info-section ul li::before {
+  content: '◆';
+  position: absolute;
+  left: 0;
+  color: var(--red);
+  font-size: 0.4rem;
+  top: 0.4rem;
+}
+
 /* ── CONTACT MODAL ── */
 .contact-overlay {
   position: fixed;
@@ -1476,28 +1611,28 @@ footer { background: var(--black); border-top: 1px solid rgba(200,200,200,0.06);
     <div>
       <div class="footer-col-title">Shop</div>
       <ul class="footer-links">
-        <li><a href="#">All Products</a></li>
+        <li><a href="#products">All Products</a></li>
         <li><a href="#">Acrylic Covers</a></li>
-        <li><a href="#">Quad Cortex</a></li>
-        <li><a href="#">Nano Cortex</a></li>
-        <li><a href="#">Digitech</a></li>
+        <li><a href="#products">Quad Cortex</a></li>
+        <li><a href="#products">Nano Cortex</a></li>
+        <li><a href="#products">Digitech</a></li>
       </ul>
     </div>
     <div>
       <div class="footer-col-title">Support</div>
       <ul class="footer-links">
         <li><a href="javascript:void(0)" onclick="openContact(event)">Contact Us</a></li>
-        <li><a href="#">Shipping Info</a></li>
-        <li><a href="#">Returns</a></li>
-        <li><a href="#">FAQ</a></li>
+        <li><a href="javascript:void(0)" onclick="openModal('shipping')">Shipping Info</a></li>
+        <li><a href="javascript:void(0)" onclick="openModal('returns')">Returns</a></li>
+        <li><a href="javascript:void(0)" onclick="openModal('faq')">FAQ</a></li>
       </ul>
     </div>
     <div>
       <div class="footer-col-title">Company</div>
       <ul class="footer-links">
-        <li><a href="#">About</a></li>
-        <li><a href="#">Privacy Policy</a></li>
-        <li><a href="#">Terms of Service</a></li>
+        <li><a href="javascript:void(0)" onclick="openModal('about')">About</a></li>
+        <li><a href="javascript:void(0)" onclick="openModal('privacy')">Privacy Policy</a></li>
+        <li><a href="javascript:void(0)" onclick="openModal('tos')">Terms of Service</a></li>
       </ul>
     </div>
   </div>
@@ -1530,6 +1665,17 @@ footer { background: var(--black); border-top: 1px solid rgba(200,200,200,0.06);
     </div>
     <button class="btn-checkout" id="checkout-btn" onclick="checkout()" disabled>Proceed to Checkout →</button>
     <div class="cart-note">Secure checkout powered by Stripe</div>
+  </div>
+</div>
+
+<!-- INFO MODAL -->
+<div class="info-overlay" id="info-overlay" onclick="closeInfoOnOverlay(event)">
+  <div class="info-modal" id="info-modal">
+    <div class="info-modal-header">
+      <div class="info-modal-title" id="info-modal-title">Info</div>
+      <button class="info-close" onclick="closeInfo()">✕ Close</button>
+    </div>
+    <div class="info-modal-body" id="info-modal-body"></div>
   </div>
 </div>
 
@@ -1670,7 +1816,178 @@ async function checkout() {
   }
 }
 
-function openContact(e) {
+function openModal(type) {
+  const titles = {
+    shipping: 'Shipping Info',
+    returns: 'Returns',
+    faq: 'FAQ',
+    about: 'About StompGuard',
+    privacy: 'Privacy Policy',
+    tos: 'Terms of Service'
+  };
+
+  const content = {
+    shipping: `
+      <div class="info-section">
+        <div class="info-section-title">Processing Time</div>
+        <p>All orders are processed within 1–3 business days. Orders placed on weekends or holidays will be processed the next business day.</p>
+      </div>
+      <div class="info-section">
+        <div class="info-section-title">Shipping Methods</div>
+        <ul>
+          <li>USPS First Class (3–7 business days) — most orders</li>
+          <li>USPS Priority Mail (2–3 business days) — available at checkout</li>
+          <li>UPS Ground — available for larger orders</li>
+        </ul>
+      </div>
+      <div class="info-section">
+        <div class="info-section-title">Shipping Rates</div>
+        <p>Shipping rates are calculated at checkout based on your location and order weight. Free shipping on orders over $75.</p>
+      </div>
+      <div class="info-section">
+        <div class="info-section-title">Tracking</div>
+        <p>You'll receive a tracking number via email once your order ships. Allow 24 hours for tracking to update after receiving your confirmation.</p>
+      </div>
+      <div class="info-section">
+        <div class="info-section-title">International Shipping</div>
+        <p>We currently ship within the United States only. International shipping coming soon.</p>
+      </div>`,
+
+    returns: `
+      <div class="info-section">
+        <div class="info-section-title">Return Window</div>
+        <p>We accept returns within 30 days of delivery. Items must be unused and in original condition.</p>
+      </div>
+      <div class="info-section">
+        <div class="info-section-title">How to Return</div>
+        <ul>
+          <li>Contact us via the Contact form with your order number</li>
+          <li>We'll provide a return shipping label</li>
+          <li>Pack the item securely and drop off at any USPS location</li>
+          <li>Refund processed within 5–7 business days of receipt</li>
+        </ul>
+      </div>
+      <div class="info-section">
+        <div class="info-section-title">Refunds</div>
+        <p>Refunds are issued to the original payment method. Shipping costs are non-refundable unless the return is due to our error.</p>
+      </div>
+      <div class="info-section">
+        <div class="info-section-title">Damaged Items</div>
+        <p>If your item arrived damaged, contact us within 7 days of delivery with photos and we'll send a replacement at no charge.</p>
+      </div>`,
+
+    faq: `
+      <div class="info-section">
+        <div class="info-section-title">Will it fit my exact pedal model?</div>
+        <p>Yes. Each StompGuard is precision-cut specifically for your pedal model. Make sure you're selecting the correct product for your device — Quad Cortex, Quad Cortex Mini, Nano Cortex, or Digitech Drop.</p>
+      </div>
+      <div class="info-section">
+        <div class="info-section-title">Does it interfere with knobs or switches?</div>
+        <p>No. StompGuard protectors are designed to protect your footswitches and screen without blocking access to any knobs, ports, or controls.</p>
+      </div>
+      <div class="info-section">
+        <div class="info-section-title">How does the magnetic version attach?</div>
+        <p>The magnetic version uses rare earth magnets embedded in the acrylic that align with metal contact points on the pedal. No adhesives, no tools — snaps on and off in seconds.</p>
+      </div>
+      <div class="info-section">
+        <div class="info-section-title">Will it scratch my pedal?</div>
+        <p>No. The contact surfaces are designed to sit cleanly without scratching. We recommend keeping both surfaces clean before attaching.</p>
+      </div>
+      <div class="info-section">
+        <div class="info-section-title">How do I clean it?</div>
+        <p>Wipe with a soft, dry cloth. Avoid harsh chemicals or abrasive cleaners that may scratch the acrylic surface.</p>
+      </div>
+      <div class="info-section">
+        <div class="info-section-title">Do you offer custom sizes?</div>
+        <p>Not currently, but we're expanding our lineup. Contact us if you have a specific pedal model you'd like to see covered.</p>
+      </div>`,
+
+    about: `
+      <div class="info-section">
+        <div class="info-section-title">Our Story</div>
+        <p>StompGuard was born on a gig. After an accidental stomp wiped out a carefully crafted preset mid-set, we knew there had to be a better way to protect the gear musicians depend on most.</p>
+      </div>
+      <div class="info-section">
+        <div class="info-section-title">What We Do</div>
+        <p>We design and manufacture precision-cut acrylic protectors for high-end guitar effects processors. Every StompGuard is cut to exact specifications for your specific pedal model — no generic solutions, no compromises.</p>
+      </div>
+      <div class="info-section">
+        <div class="info-section-title">Made in the USA</div>
+        <p>All StompGuard protectors are designed and produced in the United States. We take pride in fast order fulfillment and standing behind every product we ship.</p>
+      </div>
+      <div class="info-section">
+        <div class="info-section-title">Built for Players</div>
+        <p>We're musicians first. Every decision we make — from materials to fit to packaging — is made with the gigging musician in mind. Your gear is your livelihood. We take that seriously.</p>
+      </div>`,
+
+    privacy: `
+      <div class="info-section">
+        <div class="info-section-title">Information We Collect</div>
+        <p>We collect information you provide when placing an order, including your name, email address, shipping address, and payment information. Payment data is processed securely by Stripe and never stored on our servers.</p>
+      </div>
+      <div class="info-section">
+        <div class="info-section-title">How We Use Your Information</div>
+        <ul>
+          <li>To process and fulfill your orders</li>
+          <li>To send order confirmations and shipping updates</li>
+          <li>To respond to customer service inquiries</li>
+          <li>To improve our products and website</li>
+        </ul>
+      </div>
+      <div class="info-section">
+        <div class="info-section-title">Data Sharing</div>
+        <p>We do not sell or share your personal information with third parties except as necessary to fulfill your order (e.g., shipping carriers) or as required by law.</p>
+      </div>
+      <div class="info-section">
+        <div class="info-section-title">Cookies</div>
+        <p>Our website uses minimal cookies necessary for site functionality. We do not use tracking or advertising cookies.</p>
+      </div>
+      <div class="info-section">
+        <div class="info-section-title">Contact</div>
+        <p>For privacy-related questions, contact us at support@stompguard.com.</p>
+      </div>`,
+
+    tos: `
+      <div class="info-section">
+        <div class="info-section-title">Acceptance of Terms</div>
+        <p>By purchasing from StompGuard, you agree to these terms. We reserve the right to update these terms at any time.</p>
+      </div>
+      <div class="info-section">
+        <div class="info-section-title">Products</div>
+        <p>All product descriptions, images, and pricing are as accurate as possible. We reserve the right to correct errors and update product information at any time.</p>
+      </div>
+      <div class="info-section">
+        <div class="info-section-title">Orders & Payment</div>
+        <p>Orders are processed once payment is confirmed. We accept all major credit cards via Stripe. Prices are in USD and subject to change without notice.</p>
+      </div>
+      <div class="info-section">
+        <div class="info-section-title">Intellectual Property</div>
+        <p>All content on this site including logos, images, and text is the property of StompGuard and may not be reproduced without written permission.</p>
+      </div>
+      <div class="info-section">
+        <div class="info-section-title">Limitation of Liability</div>
+        <p>StompGuard is not liable for any indirect, incidental, or consequential damages arising from the use of our products beyond the purchase price paid.</p>
+      </div>
+      <div class="info-section">
+        <div class="info-section-title">Governing Law</div>
+        <p>These terms are governed by the laws of the United States. Any disputes will be resolved in the applicable jurisdiction.</p>
+      </div>`
+  };
+
+  document.getElementById('info-modal-title').textContent = titles[type];
+  document.getElementById('info-modal-body').innerHTML = content[type];
+  document.getElementById('info-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeInfo() {
+  document.getElementById('info-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function closeInfoOnOverlay(e) {
+  if (e.target === document.getElementById('info-overlay')) closeInfo();
+}
   if (e) { e.preventDefault(); e.stopPropagation(); }
   document.getElementById('contact-form').style.display = 'flex';
   document.getElementById('contact-success').style.display = 'none';
