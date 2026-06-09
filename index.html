@@ -1993,6 +1993,8 @@ function closeInfo() {
 function closeInfoOnOverlay(e) {
   if (e.target === document.getElementById('info-overlay')) closeInfo();
 }
+
+function openContact(e) {
   if (e) { e.preventDefault(); e.stopPropagation(); }
   document.getElementById('contact-form').style.display = 'flex';
   document.getElementById('contact-success').style.display = 'none';
