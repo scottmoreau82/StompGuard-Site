@@ -167,9 +167,283 @@ nav::before {
   border: 1px solid var(--red-hi);
   clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
   transition: background 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  position: relative;
 }
 
 .nav-cta:hover { background: var(--red-hi); }
+
+.nav-cta-count {
+  background: var(--chrome-hi);
+  color: var(--red);
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  font-weight: 700;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s;
+}
+
+/* ── CART DRAWER ── */
+.cart-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  z-index: 900;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+
+.cart-overlay.open {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.cart-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 420px;
+  max-width: 100vw;
+  height: 100vh;
+  background: var(--surface);
+  border-left: 1px solid rgba(200,200,200,0.08);
+  z-index: 901;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 0.35s cubic-bezier(0.4,0,0.2,1);
+}
+
+.cart-drawer.open {
+  transform: translateX(0);
+}
+
+.cart-drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem;
+  border-bottom: 1px solid rgba(200,200,200,0.06);
+  flex-shrink: 0;
+}
+
+.cart-drawer-title {
+  font-family: var(--font-head);
+  font-size: 1.4rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--chrome-hi);
+}
+
+.cart-close {
+  background: transparent;
+  border: 1px solid var(--gunmetal);
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  padding: 6px 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-transform: uppercase;
+}
+
+.cart-close:hover {
+  border-color: var(--chrome-lo);
+  color: var(--chrome-hi);
+}
+
+.cart-items {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem;
+}
+
+.cart-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  gap: 1rem;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+.cart-empty-icon {
+  font-size: 2.5rem;
+  opacity: 0.3;
+}
+
+.cart-item {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
+  background: var(--surface2);
+  border: 1px solid rgba(200,200,200,0.06);
+  margin-bottom: 0.75rem;
+  clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+}
+
+.cart-item-name {
+  font-family: var(--font-head);
+  font-size: 0.9rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--chrome-hi);
+  margin-bottom: 4px;
+  line-height: 1.2;
+}
+
+.cart-item-price {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--chrome);
+  margin-bottom: 0.6rem;
+}
+
+.cart-item-qty {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.qty-btn {
+  background: var(--gunmetal);
+  border: 1px solid rgba(200,200,200,0.1);
+  color: var(--chrome-hi);
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+
+.qty-btn:hover { background: var(--red); border-color: var(--red); }
+
+.qty-num {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--chrome-hi);
+  min-width: 20px;
+  text-align: center;
+}
+
+.cart-item-remove {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.2s;
+  margin-left: auto;
+  align-self: flex-start;
+}
+
+.cart-item-remove:hover { color: var(--red); }
+
+.cart-item-info { flex: 1; }
+
+.cart-footer {
+  padding: 1.5rem;
+  border-top: 1px solid rgba(200,200,200,0.06);
+  flex-shrink: 0;
+}
+
+.cart-subtotal {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.2rem;
+}
+
+.cart-subtotal-label {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.cart-subtotal-amount {
+  font-family: var(--font-mono);
+  font-size: 1.3rem;
+  color: var(--chrome-hi);
+}
+
+.btn-checkout {
+  width: 100%;
+  background: var(--red);
+  color: var(--chrome-hi);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  padding: 16px;
+  border: 1px solid var(--red-hi);
+  cursor: pointer;
+  clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+  transition: background 0.2s;
+}
+
+.btn-checkout:hover { background: var(--red-hi); }
+.btn-checkout:disabled {
+  background: var(--gunmetal);
+  border-color: var(--gunmetal);
+  color: var(--muted);
+  cursor: not-allowed;
+}
+
+.cart-note {
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  text-align: center;
+  margin-top: 0.8rem;
+  opacity: 0.6;
+}
+
+/* Mobile cart — slides from bottom */
+@media (max-width: 600px) {
+  .cart-drawer {
+    top: auto;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    width: 100%;
+    height: 85vh;
+    border-left: none;
+    border-top: 1px solid rgba(200,200,200,0.08);
+    transform: translateY(100%);
+    border-radius: 0;
+  }
+  .cart-drawer.open {
+    transform: translateY(0);
+  }
+}
 
 /* ── HERO ── */
 .hero {
@@ -1097,7 +1371,9 @@ footer {
     <li><a href="#">Acrylic Covers</a></li>
     <li><a href="#">Contact</a></li>
   </ul>
-  <a href="https://buy.stripe.com/test_00waEWdfkfkE9Kvbhk8Vi00" class="nav-cta" target="_blank">Buy Now</a>
+  <button class="nav-cta" onclick="openCart()">
+    🛒 Cart <span class="nav-cta-count" id="cart-count">0</span>
+  </button>
 </nav>
 
 <!-- HERO -->
@@ -1117,7 +1393,7 @@ footer {
         Precision-cut acrylic protectors for your most valuable gear. Engineered for gigging musicians who operate in hostile environments.
       </div>
       <div class="hero-ctas">
-        <a href="https://buy.stripe.com/test_00waEWdfkfkE9Kvbhk8Vi00" class="btn-deploy" target="_blank">Deploy Now →</a>
+        <a href="#products" class="btn-deploy">Shop Now →</a>
         <a href="#products" class="btn-ghost">View Catalog →</a>
       </div>
     </div>
@@ -1177,7 +1453,7 @@ footer {
         <div class="product-card-name">Quad Cortex Mini StompGuard w/ Screen Shield</div>
         <div class="product-card-footer">
           <span class="product-card-price">$34.95</span>
-          <a href="https://buy.stripe.com/test_aFa28q8Z43BW8Gr8588Vi01" class="add-btn" target="_blank">Deploy</a>
+          <a href="https://buy.stripe.com/test_aFa28q8Z43BW8Gr8588Vi01" class="add-btn" onclick="addToCart(event, 'quad-cortex-mini', 'Quad Cortex Mini StompGuard w/ Screen Shield', 34.95)" href="#">Add to Cart</a>
         </div>
       </div>
     </div>
@@ -1192,7 +1468,7 @@ footer {
         <div class="product-card-name">Quad Cortex StompGuard w/ Screen Protection</div>
         <div class="product-card-footer">
           <span class="product-card-price">$49.99</span>
-          <a href="https://buy.stripe.com/test_00waEWdfkfkE9Kvbhk8Vi00" class="add-btn" target="_blank">Deploy</a>
+          <a class="add-btn" onclick="addToCart(event, 'quad-cortex', 'Quad Cortex StompGuard w/ Screen Protection', 49.99)" href="#">Add to Cart</a>
         </div>
       </div>
     </div>
@@ -1206,7 +1482,7 @@ footer {
         <div class="product-card-name">Neural DSP Nano Cortex StompGuard Acrylic Protector</div>
         <div class="product-card-footer">
           <span class="product-card-price">$21.95</span>
-          <a href="https://buy.stripe.com/test_fZu9AS0sy7Sc6yj4SW8Vi02" class="add-btn" target="_blank">Deploy</a>
+          <a class="add-btn" onclick="addToCart(event, 'nano-cortex', 'Neural DSP Nano Cortex StompGuard', 21.95)" href="#">Add to Cart</a>
         </div>
       </div>
     </div>
@@ -1220,7 +1496,7 @@ footer {
         <div class="product-card-name">Digitech Drop StompGuard Acrylic Protector</div>
         <div class="product-card-footer">
           <span class="product-card-price">$21.95</span>
-          <a href="https://buy.stripe.com/test_5kQeVcfnsb4o6yjbhk8Vi03" class="add-btn" target="_blank">Deploy</a>
+          <a class="add-btn" onclick="addToCart(event, 'digitech-drop', 'Digitech Drop StompGuard', 21.95)" href="#">Add to Cart</a>
         </div>
       </div>
     </div>
@@ -1321,7 +1597,7 @@ footer {
     <h2 class="mission-title">Gear Down.<br/>Protect Up.</h2>
     <p class="mission-sub">One accidental stomp can take your rig offline mid-performance. Don't risk the mission.</p>
   </div>
-  <a href="https://buy.stripe.com/test_00waEWdfkfkE9Kvbhk8Vi00" class="btn-mission" target="_blank">Deploy Protection →</a>
+  <a href="#products" class="btn-mission">Shop Protectors →</a>
 </section>
 
 <!-- FOOTER -->
@@ -1367,6 +1643,161 @@ footer {
     <span style="font-family:var(--font-mono);font-size:0.6rem;color:var(--muted);opacity:0.4;">SG-TACTICAL-v2.0</span>
   </div>
 </footer>
+
+<!-- CART OVERLAY -->
+<div class="cart-overlay" id="cart-overlay" onclick="closeCart()"></div>
+
+<!-- CART DRAWER -->
+<div class="cart-drawer" id="cart-drawer">
+  <div class="cart-drawer-header">
+    <div class="cart-drawer-title">Your Cart</div>
+    <button class="cart-close" onclick="closeCart()">✕ Close</button>
+  </div>
+  <div class="cart-items" id="cart-items">
+    <div class="cart-empty" id="cart-empty">
+      <div class="cart-empty-icon">🛒</div>
+      <div>Your cart is empty</div>
+      <div style="font-size:0.6rem;opacity:0.5;">Add a product to get started</div>
+    </div>
+  </div>
+  <div class="cart-footer">
+    <div class="cart-subtotal">
+      <div class="cart-subtotal-label">Subtotal</div>
+      <div class="cart-subtotal-amount" id="cart-subtotal">$0.00</div>
+    </div>
+    <button class="btn-checkout" id="checkout-btn" onclick="checkout()" disabled>
+      Proceed to Checkout →
+    </button>
+    <div class="cart-note">Secure checkout powered by Stripe</div>
+  </div>
+</div>
+
+<script>
+// ── PRODUCT STRIPE PRICE IDs (test mode) ──
+const PRICE_IDS = {
+  'quad-cortex':      'price_1Tfk8QA75lXcZ5dk8aaBQqpG',
+  'quad-cortex-mini': 'price_1Tfk8SA75lXcZ5dkKftH7BAZ',
+  'nano-cortex':      'price_1Tfk8VA75lXcZ5dkHPo0vunb',
+  'digitech-drop':    'price_1Tfk8YA75lXcZ5dkCcE0cxhq'
+};
+
+let cart = {};
+
+function openCart() {
+  document.getElementById('cart-drawer').classList.add('open');
+  document.getElementById('cart-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeCart() {
+  document.getElementById('cart-drawer').classList.remove('open');
+  document.getElementById('cart-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function addToCart(e, id, name, price) {
+  e.preventDefault();
+  if (cart[id]) {
+    cart[id].qty += 1;
+  } else {
+    cart[id] = { name, price, qty: 1 };
+  }
+  renderCart();
+  openCart();
+}
+
+function updateQty(id, delta) {
+  if (!cart[id]) return;
+  cart[id].qty += delta;
+  if (cart[id].qty <= 0) delete cart[id];
+  renderCart();
+}
+
+function removeItem(id) {
+  delete cart[id];
+  renderCart();
+}
+
+function renderCart() {
+  const itemsEl = document.getElementById('cart-items');
+  const emptyEl = document.getElementById('cart-empty');
+  const subtotalEl = document.getElementById('cart-subtotal');
+  const countEl = document.getElementById('cart-count');
+  const checkoutBtn = document.getElementById('checkout-btn');
+
+  const keys = Object.keys(cart);
+  let total = 0;
+  let count = 0;
+
+  if (keys.length === 0) {
+    itemsEl.innerHTML = '';
+    itemsEl.appendChild(emptyEl);
+    emptyEl.style.display = 'flex';
+    subtotalEl.textContent = '$0.00';
+    countEl.textContent = '0';
+    checkoutBtn.disabled = true;
+    return;
+  }
+
+  emptyEl.style.display = 'none';
+  let html = '';
+  keys.forEach(id => {
+    const item = cart[id];
+    const itemTotal = item.price * item.qty;
+    total += itemTotal;
+    count += item.qty;
+    html += `
+      <div class="cart-item">
+        <div class="cart-item-info">
+          <div class="cart-item-name">${item.name}</div>
+          <div class="cart-item-price">$${item.price.toFixed(2)} each</div>
+          <div class="cart-item-qty">
+            <button class="qty-btn" onclick="updateQty('${id}', -1)">−</button>
+            <span class="qty-num">${item.qty}</span>
+            <button class="qty-btn" onclick="updateQty('${id}', 1)">+</button>
+            <button class="cart-item-remove" onclick="removeItem('${id}')">Remove</button>
+          </div>
+        </div>
+      </div>`;
+  });
+
+  itemsEl.innerHTML = html;
+  subtotalEl.textContent = '$' + total.toFixed(2);
+  countEl.textContent = count;
+  checkoutBtn.disabled = false;
+}
+
+async function checkout() {
+  const checkoutBtn = document.getElementById('checkout-btn');
+  checkoutBtn.disabled = true;
+  checkoutBtn.textContent = 'Loading...';
+
+  const lineItems = Object.keys(cart).map(id => ({
+    price: PRICE_IDS[id],
+    quantity: cart[id].qty
+  }));
+
+  try {
+    const response = await fetch('/checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ items: lineItems })
+    });
+    const data = await response.json();
+    if (data.url) {
+      window.location.href = data.url;
+    } else {
+      alert('Checkout error. Please try again.');
+      checkoutBtn.disabled = false;
+      checkoutBtn.textContent = 'Proceed to Checkout →';
+    }
+  } catch (err) {
+    alert('Checkout error. Please try again.');
+    checkoutBtn.disabled = false;
+    checkoutBtn.textContent = 'Proceed to Checkout →';
+  }
+}
+</script>
 
 </body>
 </html>
