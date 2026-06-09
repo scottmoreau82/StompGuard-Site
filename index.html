@@ -543,6 +543,212 @@ nav::before {
   top: 0.4rem;
 }
 
+/* ── PRODUCT MODAL ── */
+.product-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  z-index: 10000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.product-overlay.open { opacity: 1; pointer-events: all; }
+
+.product-modal {
+  background: var(--surface);
+  border: 1px solid rgba(200,200,200,0.08);
+  width: 100%;
+  max-width: 820px;
+  max-height: 90vh;
+  overflow-y: auto;
+  clip-path: polygon(0 0, calc(100% - 24px) 0, 100% 24px, 100% 100%, 24px 100%, 0 calc(100% - 24px));
+  position: relative;
+  transform: translateY(20px);
+  transition: transform 0.3s;
+}
+
+.product-overlay.open .product-modal { transform: translateY(0); }
+
+.product-modal::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--chrome), var(--red), var(--chrome), transparent);
+}
+
+.product-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem;
+  border-bottom: 1px solid rgba(200,200,200,0.06);
+  position: sticky;
+  top: 0;
+  background: var(--surface);
+  z-index: 2;
+}
+
+.product-modal-title {
+  font-family: var(--font-head);
+  font-size: 1.2rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--chrome-hi);
+  line-height: 1.2;
+}
+
+.product-modal-close {
+  background: transparent;
+  border: 1px solid var(--gunmetal);
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  padding: 6px 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.product-modal-close:hover { border-color: var(--chrome-lo); color: var(--chrome-hi); }
+
+.product-modal-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+}
+
+.product-modal-images {
+  background: var(--black);
+  position: relative;
+  overflow: hidden;
+}
+
+.product-modal-main-img {
+  width: 100%;
+  aspect-ratio: 1;
+  overflow: hidden;
+}
+
+.product-modal-main-img img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  filter: contrast(1.1) saturate(0.8);
+  transition: transform 0.5s;
+}
+
+.product-modal-thumbs {
+  display: flex;
+  gap: 4px;
+  padding: 8px;
+  background: var(--surface2);
+}
+
+.product-modal-thumb {
+  width: 56px; height: 56px;
+  overflow: hidden;
+  border: 1px solid rgba(200,200,200,0.08);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: border-color 0.2s;
+}
+
+.product-modal-thumb.active { border-color: var(--red); }
+.product-modal-thumb:hover { border-color: var(--chrome-lo); }
+
+.product-modal-thumb img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  filter: contrast(1.1) saturate(0.7);
+}
+
+.product-modal-info {
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  border-left: 1px solid rgba(200,200,200,0.06);
+}
+
+.product-modal-sku {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.25em;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+.product-modal-price {
+  font-family: var(--font-mono);
+  font-size: 2rem;
+  color: var(--chrome-hi);
+  letter-spacing: 0.05em;
+}
+
+.product-modal-desc {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--muted);
+  line-height: 1.8;
+  letter-spacing: 0.03em;
+}
+
+.product-modal-specs {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.product-modal-spec {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--muted);
+  letter-spacing: 0.03em;
+  line-height: 1.5;
+}
+
+.product-modal-spec::before {
+  content: '◆';
+  color: var(--red);
+  font-size: 0.4rem;
+  margin-top: 0.35rem;
+  flex-shrink: 0;
+}
+
+.btn-product-cart {
+  background: var(--red);
+  color: var(--chrome-hi);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  padding: 16px;
+  border: 1px solid var(--red-hi);
+  cursor: pointer;
+  clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+  transition: background 0.2s;
+  width: 100%;
+  margin-top: auto;
+}
+
+.btn-product-cart:hover { background: var(--red-hi); }
+
+@media (max-width: 700px) {
+  .product-modal-body { grid-template-columns: 1fr; }
+  .product-modal-info { border-left: none; border-top: 1px solid rgba(200,200,200,0.06); }
+}
+
 /* ── CONTACT MODAL ── */
 .contact-overlay {
   position: fixed;
@@ -1450,9 +1656,7 @@ footer { background: var(--black); border-top: 1px solid rgba(200,200,200,0.06);
     <a href="#" class="view-all">View All Products →</a>
   </div>
   <div class="products-grid" id="products">
-    <div class="product-card">
-      <div class="product-card-img">
-        <img src="https://stompguard.com/cdn/shop/files/26dd5755-il_fullxfull.7636746092_1utv.jpg?v=1773128060&width=500" alt="Quad Cortex Mini"/>
+    <div class="product-card" onclick="openProduct('quad-cortex-mini')">
         <div class="product-card-badge">New</div>
       </div>
       <div class="product-card-body">
@@ -1464,7 +1668,7 @@ footer { background: var(--black); border-top: 1px solid rgba(200,200,200,0.06);
         </div>
       </div>
     </div>
-    <div class="product-card">
+    <div class="product-card" onclick="openProduct('quad-cortex')">
       <div class="product-card-img">
         <img src="https://stompguard.com/cdn/shop/files/62eaf802-il_fullxfull.7575364814_alzo.jpg?v=1773128059&width=500" alt="Quad Cortex Full"/>
         <div class="product-card-badge">Best Seller</div>
@@ -1478,7 +1682,7 @@ footer { background: var(--black); border-top: 1px solid rgba(200,200,200,0.06);
         </div>
       </div>
     </div>
-    <div class="product-card">
+    <div class="product-card" onclick="openProduct('nano-cortex')">
       <div class="product-card-img">
         <img src="https://stompguard.com/cdn/shop/files/d9c0fafb-il_fullxfull.6924149105_frep.jpg?v=1773128059&width=500" alt="Nano Cortex"/>
       </div>
@@ -1491,7 +1695,7 @@ footer { background: var(--black); border-top: 1px solid rgba(200,200,200,0.06);
         </div>
       </div>
     </div>
-    <div class="product-card">
+    <div class="product-card" onclick="openProduct('digitech-drop')">
       <div class="product-card-img">
         <img src="https://stompguard.com/cdn/shop/files/23f2648e-il_fullxfull.6876203484_mk9h.jpg?v=1773128060&width=500" alt="Digitech Drop"/>
       </div>
@@ -1670,6 +1874,31 @@ footer { background: var(--black); border-top: 1px solid rgba(200,200,200,0.06);
     </div>
     <button class="btn-checkout" id="checkout-btn" onclick="checkout()" disabled>Proceed to Checkout →</button>
     <div class="cart-note">Secure checkout powered by Stripe</div>
+  </div>
+</div>
+
+<!-- PRODUCT MODAL -->
+<div class="product-overlay" id="product-overlay" onclick="closeProductOnOverlay(event)">
+  <div class="product-modal" id="product-modal">
+    <div class="product-modal-header">
+      <div class="product-modal-title" id="product-modal-title"></div>
+      <button class="product-modal-close" onclick="closeProduct()">✕ Close</button>
+    </div>
+    <div class="product-modal-body">
+      <div class="product-modal-images">
+        <div class="product-modal-main-img">
+          <img id="product-modal-main-img" src="" alt=""/>
+        </div>
+        <div class="product-modal-thumbs" id="product-modal-thumbs"></div>
+      </div>
+      <div class="product-modal-info">
+        <div class="product-modal-sku" id="product-modal-sku"></div>
+        <div class="product-modal-price" id="product-modal-price"></div>
+        <div class="product-modal-desc" id="product-modal-desc"></div>
+        <div class="product-modal-specs" id="product-modal-specs"></div>
+        <button class="btn-product-cart" id="product-modal-cart-btn">Add to Cart</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -1992,6 +2221,88 @@ function closeInfo() {
 
 function closeInfoOnOverlay(e) {
   if (e.target === document.getElementById('info-overlay')) closeInfo();
+}
+
+// ── PRODUCT DATA ──
+const PRODUCTS = {
+  'quad-cortex': {
+    sku: 'QC-001',
+    name: 'Quad Cortex StompGuard w/ Screen Protection',
+    price: '$49.99',
+    cartId: 'quad-cortex',
+    cartName: 'Quad Cortex StompGuard w/ Screen Protection',
+    cartPrice: 49.99,
+    desc: 'Precision-cut acrylic protector designed specifically for the Neural DSP Quad Cortex. Includes full screen shield to protect your display from accidental damage during live performance.',
+    specs: ['Precision CNC-cut for exact Quad Cortex fit','Full screen shield included','Crystal-clear optical-grade acrylic','Available with magnetic quick-release','US manufactured'],
+    images: ['https://stompguard.com/cdn/shop/files/62eaf802-il_fullxfull.7575364814_alzo.jpg?v=1773128059&width=600','https://stompguard.com/cdn/shop/files/80403f2c-il_fullxfull.7627642180_7w3a.jpg?v=1773128059&width=600']
+  },
+  'quad-cortex-mini': {
+    sku: 'QC-002',
+    name: 'Quad Cortex Mini StompGuard w/ Screen Shield',
+    price: '$34.95',
+    cartId: 'quad-cortex-mini',
+    cartName: 'Quad Cortex Mini StompGuard w/ Screen Shield',
+    cartPrice: 34.95,
+    desc: 'Precision-cut acrylic protector designed specifically for the Neural DSP Quad Cortex Mini. Full screen shield keeps your display safe from knocks, liquid, and the chaos of live performance.',
+    specs: ['Precision CNC-cut for exact QC Mini fit','Full screen shield included','Crystal-clear optical-grade acrylic','Tool-free installation','US manufactured'],
+    images: ['https://stompguard.com/cdn/shop/files/26dd5755-il_fullxfull.7636746092_1utv.jpg?v=1773128060&width=600','https://stompguard.com/cdn/shop/files/80403f2c-il_fullxfull.7627642180_7w3a.jpg?v=1773128059&width=600']
+  },
+  'nano-cortex': {
+    sku: 'QC-003',
+    name: 'Neural DSP Nano Cortex StompGuard Acrylic Protector',
+    price: '$21.95',
+    cartId: 'nano-cortex',
+    cartName: 'Neural DSP Nano Cortex StompGuard',
+    cartPrice: 21.95,
+    desc: 'Precision-cut acrylic protector for the Neural DSP Nano Cortex. Slim profile protects your pedal from accidental stomps without adding bulk to your pedalboard.',
+    specs: ['Precision CNC-cut for exact Nano Cortex fit','Low-profile slim design','Crystal-clear optical-grade acrylic','Tool-free installation','US manufactured'],
+    images: ['https://stompguard.com/cdn/shop/files/d9c0fafb-il_fullxfull.6924149105_frep.jpg?v=1773128059&width=600','https://stompguard.com/cdn/shop/files/80403f2c-il_fullxfull.7627642180_7w3a.jpg?v=1773128059&width=600']
+  },
+  'digitech-drop': {
+    sku: 'QC-004',
+    name: 'Digitech Drop StompGuard Acrylic Protector',
+    price: '$21.95',
+    cartId: 'digitech-drop',
+    cartName: 'Digitech Drop StompGuard',
+    cartPrice: 21.95,
+    desc: 'Precision-cut acrylic protector for the Digitech Drop pedal. Keeps your most-used stomp switch safe from wear and accidental activation when you need it most.',
+    specs: ['Precision CNC-cut for exact Digitech Drop fit','Protects stomp switch from accidental activation','Crystal-clear optical-grade acrylic','Tool-free installation','US manufactured'],
+    images: ['https://stompguard.com/cdn/shop/files/23f2648e-il_fullxfull.6876203484_mk9h.jpg?v=1773128060&width=600','https://stompguard.com/cdn/shop/files/80403f2c-il_fullxfull.7627642180_7w3a.jpg?v=1773128059&width=600']
+  }
+};
+
+function openProduct(id) {
+  const p = PRODUCTS[id];
+  if (!p) return;
+  document.getElementById('product-modal-title').textContent = p.name;
+  document.getElementById('product-modal-sku').textContent = p.sku;
+  document.getElementById('product-modal-price').textContent = p.price;
+  document.getElementById('product-modal-desc').textContent = p.desc;
+  document.getElementById('product-modal-specs').innerHTML = p.specs.map(s => `<div class="product-modal-spec">${s}</div>`).join('');
+  document.getElementById('product-modal-main-img').src = p.images[0];
+  document.getElementById('product-modal-main-img').alt = p.name;
+  document.getElementById('product-modal-thumbs').innerHTML = p.images.map((img, i) =>
+    `<div class="product-modal-thumb ${i===0?'active':''}" onclick="switchProductImg(this,'${img}')"><img src="${img}" alt=""/></div>`
+  ).join('');
+  const btn = document.getElementById('product-modal-cart-btn');
+  btn.onclick = (e) => { e.stopPropagation(); addToCart(e, p.cartId, p.cartName, p.cartPrice); closeProduct(); };
+  document.getElementById('product-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function switchProductImg(thumb, src) {
+  document.getElementById('product-modal-main-img').src = src;
+  document.querySelectorAll('.product-modal-thumb').forEach(t => t.classList.remove('active'));
+  thumb.classList.add('active');
+}
+
+function closeProduct() {
+  document.getElementById('product-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function closeProductOnOverlay(e) {
+  if (e.target === document.getElementById('product-overlay')) closeProduct();
 }
 
 function openContact(e) {
