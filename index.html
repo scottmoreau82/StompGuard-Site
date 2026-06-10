@@ -2037,7 +2037,7 @@ async function checkout() {
   checkoutBtn.textContent = 'Loading...';
   const lineItems = Object.keys(cart).map(id => ({ price: PRICE_IDS[id], quantity: cart[id].qty }));
   try {
-    const response = await fetch('/checkout', {
+    const response = await fetch('https://stompguard-site.scottmoreau82.workers.dev/checkout', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ items: lineItems })
