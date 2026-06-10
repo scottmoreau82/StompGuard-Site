@@ -1984,6 +1984,7 @@ function closeCart() {
 
 function addToCart(e, id, name, price) {
   e.preventDefault();
+  e.stopPropagation();
   if (cart[id]) { cart[id].qty += 1; } else { cart[id] = { name, price, qty: 1 }; }
   renderCart();
   openCart();
