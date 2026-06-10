@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Order Lookup — StompGuard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Share+Tech+Mono&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root {
+  --black:#080808;--surface:#111111;--surface2:#1a1a1a;--gunmetal:#2a2a2a;
+  --chrome:#C8C8C8;--chrome-hi:#E8E8E8;--chrome-lo:#888888;
+  --red:#8B0000;--red-hi:#B00000;--text:#F0F0F0;--muted:#777777;
+  --font-head:'Bebas Neue',sans-serif;--font-mono:'Share Tech Mono',monospace;--font-body:'Inter',sans-serif;
+}
+html{scroll-behavior:smooth;}
+body{background:var(--black);color:var(--text);font-family:var(--font-body);min-height:100vh;display:flex;flex-direction:column;cursor:crosshair;}
+body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.03) 2px,rgba(0,0,0,0.03) 4px);pointer-events:none;z-index:9996;}
+
+nav{position:fixed;top:0;left:0;right:0;z-index:200;height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 2.5rem;background:rgba(8,8,8,0.95);border-bottom:1px solid rgba(200,200,200,0.08);backdrop-filter:blur(8px);}
+nav::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--chrome),var(--red),var(--chrome),transparent);}
+.nav-logo{display:flex;align-items:center;gap:12px;text-decoration:none;}
+.nav-logo img{height:36px;width:auto;}
+.nav-wordmark{font-family:var(--font-head);font-size:1.6rem;letter-spacing:0.15em;color:var(--chrome-hi);}
+.nav-wordmark span{color:var(--chrome-lo);font-size:0.7rem;letter-spacing:0.3em;display:block;margin-top:-6px;font-family:var(--font-mono);}
+.nav-back{font-family:var(--font-mono);font-size:0.72rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--chrome-lo);text-decoration:none;transition:color 0.2s;}
+.nav-back:hover{color:var(--chrome-hi);}
+
+.page{padding:120px 5rem 6rem;max-width:800px;margin:0 auto;width:100%;flex:1;}
+
+.page-eyebrow{font-family:var(--font-mono);font-size:0.65rem;letter-spacing:0.35em;text-transform:uppercase;color:var(--red);margin-bottom:0.8rem;display:flex;align-items:center;gap:10px;}
+.page-eyebrow::before{content:'//';color:var(--chrome-lo);}
+.page-title{font-family:var(--font-head);font-size:clamp(3rem,6vw,5rem);line-height:0.95;letter-spacing:0.02em;text-transform:uppercase;color:var(--chrome-hi);margin-bottom:0.6rem;}
+.page-sub{font-family:var(--font-mono);font-size:0.78rem;color:var(--muted);line-height:1.8;margin-bottom:3rem;letter-spacing:0.03em;}
+
+.lookup-box{background:var(--surface);border:1px solid rgba(200,200,200,0.08);clip-path:polygon(0 0,calc(100% - 20px) 0,100% 20px,100% 100%,20px 100%,0 calc(100% - 20px));position:relative;padding:2rem;margin-bottom:2.5rem;}
+.lookup-box::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--chrome),var(--red),var(--chrome),transparent);}
+
+.lookup-label{font-family:var(--font-mono);font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--chrome-lo);margin-bottom:0.5rem;display:block;}
+.lookup-row{display:flex;gap:1rem;}
+.lookup-input{flex:1;background:var(--surface2);border:1px solid rgba(200,200,200,0.08);color:var(--text);font-family:var(--font-mono);font-size:0.85rem;padding:12px 16px;outline:none;transition:border-color 0.2s;}
+.lookup-input:focus{border-color:var(--chrome-lo);}
+.lookup-input::placeholder{color:var(--muted);}
+.btn-lookup{background:var(--red);color:var(--chrome-hi);font-family:var(--font-mono);font-size:0.75rem;letter-spacing:0.2em;text-transform:uppercase;padding:12px 24px;border:1px solid var(--red-hi);cursor:pointer;clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,8px 100%,0 calc(100% - 8px));transition:background 0.2s;white-space:nowrap;flex-shrink:0;}
+.btn-lookup:hover{background:var(--red-hi);}
+.btn-lookup:disabled{background:var(--gunmetal);border-color:var(--gunmetal);color:var(--muted);cursor:not-allowed;}
+
+.lookup-error{font-family:var(--font-mono);font-size:0.72rem;color:var(--red-hi);margin-top:0.8rem;letter-spacing:0.05em;display:none;}
+
+/* Results */
+.results{display:none;}
+.results-header{font-family:var(--font-mono);font-size:0.62rem;letter-spacing:0.25em;text-transform:uppercase;color:var(--muted);margin-bottom:1rem;}
+
+.order-card{background:var(--surface);border:1px solid rgba(200,200,200,0.08);margin-bottom:1rem;clip-path:polygon(0 0,calc(100% - 16px) 0,100% 16px,100% 100%,16px 100%,0 calc(100% - 16px));position:relative;overflow:hidden;}
+.order-card::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:var(--red);opacity:0.7;}
+
+.order-card-header{display:flex;justify-content:space-between;align-items:center;padding:1.2rem 1.5rem;border-bottom:1px solid rgba(200,200,200,0.05);}
+.order-number{font-family:var(--font-head);font-size:1.1rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--chrome-hi);}
+.order-status{font-family:var(--font-mono);font-size:0.6rem;letter-spacing:0.2em;text-transform:uppercase;padding:4px 10px;border:1px solid;}
+
+.status-paid{color:#4ade80;border-color:rgba(74,222,128,0.3);background:rgba(74,222,128,0.05);}
+.status-pending{color:var(--chrome-lo);border-color:rgba(200,200,200,0.2);background:rgba(200,200,200,0.03);}
+.status-failed{color:var(--red-hi);border-color:rgba(139,0,0,0.4);background:rgba(139,0,0,0.05);}
+.status-shipped{color:#60a5fa;border-color:rgba(96,165,250,0.3);background:rgba(96,165,250,0.05);}
+
+.order-card-body{padding:1.2rem 1.5rem;}
+.order-meta{display:flex;gap:2rem;margin-bottom:1rem;flex-wrap:wrap;}
+.order-meta-item{display:flex;flex-direction:column;gap:2px;}
+.order-meta-label{font-family:var(--font-mono);font-size:0.55rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);}
+.order-meta-value{font-family:var(--font-mono);font-size:0.78rem;color:var(--chrome);}
+
+.order-items{border-top:1px solid rgba(200,200,200,0.04);padding-top:1rem;margin-top:0.5rem;}
+.order-item{display:flex;justify-content:space-between;align-items:center;padding:0.4rem 0;font-family:var(--font-mono);font-size:0.72rem;color:var(--muted);}
+.order-item-name{color:var(--chrome-lo);}
+.order-item-qty{color:var(--muted);}
+
+.shipping-info{margin-top:0.8rem;padding:0.8rem;background:var(--surface2);border:1px solid rgba(200,200,200,0.04);}
+.shipping-label{font-family:var(--font-mono);font-size:0.55rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);margin-bottom:4px;}
+.shipping-value{font-family:var(--font-mono);font-size:0.72rem;color:var(--chrome-lo);line-height:1.6;}
+
+.no-orders{text-align:center;padding:3rem;font-family:var(--font-mono);font-size:0.75rem;color:var(--muted);letter-spacing:0.1em;}
+.no-orders-icon{font-size:2rem;opacity:0.3;margin-bottom:1rem;}
+
+footer{background:var(--black);border-top:1px solid rgba(200,200,200,0.06);padding:2rem 5rem;font-family:var(--font-mono);font-size:0.62rem;color:var(--muted);letter-spacing:0.1em;opacity:0.6;display:flex;justify-content:space-between;}
+
+@media(max-width:600px){
+  .page{padding:100px 1.5rem 4rem;}
+  nav{padding:0 1rem;}
+  .lookup-row{flex-direction:column;}
+  .order-meta{gap:1rem;}
+  footer{padding:2rem 1.5rem;flex-direction:column;gap:0.5rem;}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">
+    <img src="images/RoboLogoSVGfinal.png" alt="StompGuard"/>
+    <div class="nav-wordmark">StompGuard<span>Pedal Protection Systems</span></div>
+  </a>
+  <a href="/" class="nav-back">← Back to Store</a>
+</nav>
+
+<div class="page">
+  <div class="page-eyebrow">Order History</div>
+  <h1 class="page-title">Track Your<br/>Order</h1>
+  <p class="page-sub">Enter the email address used at checkout to view your order history and status.</p>
+
+  <div class="lookup-box">
+    <label class="lookup-label" for="email-input">Email Address</label>
+    <div class="lookup-row">
+      <input class="lookup-input" id="email-input" type="email" placeholder="your@email.com" onkeydown="if(event.key==='Enter')lookupOrders()"/>
+      <button class="btn-lookup" id="lookup-btn" onclick="lookupOrders()">Look Up Orders →</button>
+    </div>
+    <div class="lookup-error" id="lookup-error"></div>
+  </div>
+
+  <div class="results" id="results">
+    <div class="results-header" id="results-header"></div>
+    <div id="orders-list"></div>
+  </div>
+</div>
+
+<footer>
+  <span>© 2025 StompGuard. All rights reserved.</span>
+  <span>Questions? <a href="/" style="color:var(--chrome-lo);text-decoration:none;" onclick="event.preventDefault();window.location='/?contact=1'">Contact Us</a></span>
+</footer>
+
+<script>
+const WORKER_URL = 'https://stompguard-worker.YOUR_SUBDOMAIN.workers.dev';
+
+async function lookupOrders() {
+  const email = document.getElementById('email-input').value.trim();
+  const errorEl = document.getElementById('lookup-error');
+  const btn = document.getElementById('lookup-btn');
+  const resultsEl = document.getElementById('results');
+
+  errorEl.style.display = 'none';
+
+  if (!email || !email.includes('@')) {
+    errorEl.textContent = 'Please enter a valid email address.';
+    errorEl.style.display = 'block';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Looking up...';
+
+  try {
+    const res = await fetch(`${WORKER_URL}/orders?email=${encodeURIComponent(email)}`);
+    const data = await res.json();
+
+    if (!res.ok) throw new Error(data.error || 'Lookup failed');
+
+    renderOrders(data.orders, email);
+    resultsEl.style.display = 'block';
+
+  } catch (err) {
+    errorEl.textContent = 'Unable to look up orders. Please try again.';
+    errorEl.style.display = 'block';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Look Up Orders →';
+  }
+}
+
+function renderOrders(orders, email) {
+  const headerEl = document.getElementById('results-header');
+  const listEl = document.getElementById('orders-list');
+
+  if (orders.length === 0) {
+    headerEl.textContent = `No orders found for ${email}`;
+    listEl.innerHTML = `
+      <div class="no-orders">
+        <div class="no-orders-icon">📦</div>
+        <div>No orders found for this email address.</div>
+        <div style="margin-top:0.5rem;font-size:0.65rem;opacity:0.6;">Make sure you're using the email you checked out with.</div>
+      </div>`;
+    return;
+  }
+
+  headerEl.textContent = `${orders.length} order${orders.length !== 1 ? 's' : ''} found for ${email}`;
+
+  listEl.innerHTML = orders.map(order => {
+    const date = new Date(order.created_at).toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' });
+    const total = order.total_amount ? `$${(order.total_amount / 100).toFixed(2)}` : '—';
+    const statusClass = `status-${order.status}`;
+    const statusLabel = { paid:'Paid', pending:'Processing', failed:'Failed', shipped:'Shipped' }[order.status] || order.status;
+
+    const itemsHtml = Array.isArray(order.items) && order.items.length > 0
+      ? order.items.map(item => `
+          <div class="order-item">
+            <span class="order-item-name">${item.name || item.price || 'Item'}</span>
+            <span class="order-item-qty">×${item.quantity}</span>
+          </div>`).join('')
+      : '<div class="order-item" style="color:var(--muted)">Item details unavailable</div>';
+
+    const shippingHtml = order.shipping_address?.address ? `
+      <div class="shipping-info">
+        <div class="shipping-label">Ship To</div>
+        <div class="shipping-value">
+          ${order.shipping_address.name || ''}<br/>
+          ${order.shipping_address.address.line1 || ''}
+          ${order.shipping_address.address.line2 ? '<br/>' + order.shipping_address.address.line2 : ''}
+          <br/>${order.shipping_address.address.city}, ${order.shipping_address.address.state} ${order.shipping_address.address.postal_code}
+        </div>
+      </div>` : '';
+
+    return `
+      <div class="order-card">
+        <div class="order-card-header">
+          <div class="order-number">${order.order_number}</div>
+          <div class="order-status ${statusClass}">${statusLabel}</div>
+        </div>
+        <div class="order-card-body">
+          <div class="order-meta">
+            <div class="order-meta-item">
+              <span class="order-meta-label">Date</span>
+              <span class="order-meta-value">${date}</span>
+            </div>
+            <div class="order-meta-item">
+              <span class="order-meta-label">Total</span>
+              <span class="order-meta-value">${total}</span>
+            </div>
+            ${order.customer_name ? `<div class="order-meta-item"><span class="order-meta-label">Name</span><span class="order-meta-value">${order.customer_name}</span></div>` : ''}
+          </div>
+          <div class="order-items">${itemsHtml}</div>
+          ${shippingHtml}
+        </div>
+      </div>`;
+  }).join('');
+}
+</script>
+</body>
+</html>

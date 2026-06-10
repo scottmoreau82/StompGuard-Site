@@ -1,0 +1,8 @@
+name = "stompguard-worker"
+main = "worker.js"
+compatibility_date = "2024-01-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "stompguard-orders"
+database_id = "81a44b53-a595-49b3-a8a9-1e551a3d1701"
