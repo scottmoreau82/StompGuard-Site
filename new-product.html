@@ -802,7 +802,12 @@ async function executeCommit() {
     if (!fetchRes.ok) throw new Error('Could not fetch index.html from GitHub');
     const fileData = await fetchRes.json();
     const sha      = fileData.sha;
-    let   source   = atob(fileData.content.replace(/\n/g,''));
+    // Decode base64 -> Uint8Array -> UTF-8 string (preserves all Unicode)
+    const b64str = fileData.content.replace(/\n/g,'');
+    const binary = atob(b64str);
+    const bytes = new Uint8Array(binary.length);
+    for (let i=0;i<binary.length;i++) bytes[i]=binary.charCodeAt(i);
+    let   source = new TextDecoder('utf-8').decode(bytes);
     setStep(1, 'done');
 
     // Step 2: Inject into PRODUCTS
@@ -864,7 +869,14 @@ async function executeCommit() {
 
     // Step 6: Push
     setStep(6, 'running');
-    const b64Updated = btoa(unescape(encodeURIComponent(source)));
+    // Encode UTF-8 string -> Uint8Array -> base64 (preserves all Unicode)
+    const encBytes = new TextEncoder().encode(source);
+    let b64Updated = '';
+    const chunk = 8192;
+    for (let i=0;i<encBytes.length;i+=chunk){
+      b64Updated += String.fromCharCode(...encBytes.subarray(i,i+chunk));
+    }
+    b64Updated = btoa(b64Updated);
     const pushRes = await fetch(apiUrl, {
       method: 'PUT',
       headers: { 'Authorization': `Bearer ${SESSION_PAT}`, 'Content-Type': 'application/json' },
@@ -1064,7 +1076,12 @@ async function executeDelete() {
 
     // Step 6: Push
     setDelStep(6, 'running');
-    const b64 = btoa(unescape(encodeURIComponent(source)));
+    const encBytes2 = new TextEncoder().encode(source);
+    let b64 = '';
+    for (let i=0;i<encBytes2.length;i+=8192){
+      b64 += String.fromCharCode(...encBytes2.subarray(i,i+8192));
+    }
+    b64 = btoa(b64);
     const pushRes = await fetch(apiUrl, {
       method: 'PUT',
       headers: { 'Authorization': `Bearer ${SESSION_PAT}`, 'Content-Type': 'application/json' },
