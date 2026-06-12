@@ -62,6 +62,15 @@ html, body { height: 100%; background: var(--black); color: var(--text); font-fa
 .gate-divider { border: none; border-top: 1px solid var(--gunmetal); }
 .gate-reset { font-family: var(--font-mono); font-size: 0.65rem; color: var(--muted); text-align: center; cursor: pointer; }
 .gate-reset:hover { color: var(--chrome); }
+.field input.invalid, .field textarea.invalid, .field select.invalid { border-color: #e74c3c; }
+.field input.valid, .field select.valid { border-color: #2ecc71; }
+.field-err { font-family: var(--font-mono); font-size: 0.6rem; color: #e74c3c; margin-top: 4px; display: none; }
+.field-err.show { display: block; }
+.field-ok { font-family: var(--font-mono); font-size: 0.6rem; color: #2ecc71; margin-top: 4px; display: none; }
+.field-ok.show { display: block; }
+.char-count { font-family: var(--font-mono); font-size: 0.58rem; color: var(--muted); text-align: right; margin-top: 2px; }
+.char-count.warn { color: #f39c12; }
+.char-count.over { color: #e74c3c; }
 
 /* ── RESET MODAL ── */
 #resetModal {
@@ -345,7 +354,8 @@ html, body { height: 100%; background: var(--black); color: var(--text); font-fa
         <div class="commit-check"><div class="dot" id="ddot3"></div><span id="dstep3">Remove from PRICE_IDS object</span></div>
         <div class="commit-check"><div class="dot" id="ddot4"></div><span id="dstep4">Remove product card from catalog grid</span></div>
         <div class="commit-check"><div class="dot" id="ddot5"></div><span id="dstep5">Remove from hero rotation</span></div>
-        <div class="commit-check"><div class="dot" id="ddot6"></div><span id="dstep6">Push updated index.html</span></div>
+        <div class="commit-check"><div class="dot" id="ddot6"></div><span id="dstep6">Delete product images from repo</span></div>
+        <div class="commit-check"><div class="dot" id="ddot7"></div><span id="dstep7">Push updated index.html</span></div>
       </div>
       <div class="commit-err" id="deleteErr"></div>
       <div style="display:flex;gap:10px" id="deleteActions">
@@ -363,23 +373,30 @@ html, body { height: 100%; background: var(--black); color: var(--text); font-fa
       <div class="section">
         <div class="section-label">01 // Product Identity</div>
         <div class="field">
-          <label>Product Name</label>
-          <input type="text" id="fName" placeholder="e.g. Boss RC-600 StompGuard Acrylic Protector" oninput="updatePreview()">
+          <label>Product Name <span style="color:var(--red)">*</span></label>
+          <input type="text" id="fName" placeholder="e.g. Boss RC-600 StompGuard Acrylic Protector" oninput="validateName();updatePreview()" maxlength="120">
+          <div class="char-count" id="fNameCount">0/120</div>
+          <div class="field-err" id="fNameErr">Product name is required (min 3 characters).</div>
         </div>
         <div class="field-row">
           <div class="field">
-            <label>SKU</label>
-            <input type="text" id="fSku" placeholder="e.g. QC-005" oninput="updatePreview()">
+            <label>SKU <span style="color:var(--red)">*</span></label>
+            <input type="text" id="fSku" placeholder="e.g. QC-005" oninput="validateSku();updatePreview()" maxlength="20" style="text-transform:uppercase">
+            <div class="field-err" id="fSkuErr">SKU is required.</div>
           </div>
           <div class="field">
-            <label>URL Slug</label>
-            <input type="text" id="fSlug" placeholder="e.g. boss-rc600" oninput="updatePreview()">
-            <div class="field-hint">lowercase, hyphens only</div>
+            <label>URL Slug <span style="color:var(--red)">*</span></label>
+            <input type="text" id="fSlug" placeholder="e.g. boss-rc600" oninput="validateSlug();updatePreview()" maxlength="60">
+            <div class="field-hint">lowercase, hyphens only — auto-generated from name</div>
+            <div class="field-err" id="fSlugErr">Slug must be lowercase letters, numbers, and hyphens only.</div>
+            <div class="field-ok" id="fSlugOk"></div>
           </div>
         </div>
         <div class="field">
-          <label>Description</label>
-          <textarea id="fDesc" placeholder="Short product description shown in modal..." oninput="updatePreview()"></textarea>
+          <label>Description <span style="color:var(--red)">*</span></label>
+          <textarea id="fDesc" placeholder="Short product description shown in modal..." oninput="validateDesc();updatePreview()" maxlength="400"></textarea>
+          <div class="char-count" id="fDescCount">0/400</div>
+          <div class="field-err" id="fDescErr">Description is required (min 20 characters).</div>
         </div>
       </div>
 
@@ -388,12 +405,12 @@ html, body { height: 100%; background: var(--black); color: var(--text); font-fa
         <div class="section-label">02 // Pricing &amp; Shipping</div>
         <div class="field-row">
           <div class="field">
-            <label>Display Price</label>
-            <input type="text" id="fPrice" placeholder="$29.95" oninput="updatePreview()">
+            <label>Price <span style="color:var(--red)">*</span></label>
+            <input type="number" id="fCartPrice" placeholder="29.95" step="0.01" min="0.01" max="9999.99" oninput="validatePrice();updatePreview()">
+            <div class="field-err" id="fPriceErr">Enter a valid price greater than $0.</div>
           </div>
-          <div class="field">
-            <label>Cart Price (numeric)</label>
-            <input type="number" id="fCartPrice" placeholder="29.95" step="0.01" oninput="updatePreview()">
+          <div class="field" style="display:flex;align-items:flex-end;padding-bottom:0">
+            <div id="fPricePreview" style="font-family:var(--font-mono);font-size:1.1rem;color:var(--chrome);padding-bottom:10px"></div>
           </div>
         </div>
         <div class="field">
@@ -443,7 +460,8 @@ html, body { height: 100%; background: var(--black); color: var(--text); font-fa
         <input type="file" id="imgFileInput" accept="image/*" multiple onchange="handleImageFiles(this.files)">
         <div id="imageGrid"></div>
         <div class="img-upload-progress" id="uploadProgress"></div>
-        <div class="field-hint">First image is the primary card image. Drag to reorder.</div>
+        <div class="field-err" id="fImgErr" style="margin-top:4px">At least one product image is required.</div>
+        <div class="field-hint">First image is the primary card image. Drag to reorder. At least 1 image required.</div>
       </div>
 
     </div>
@@ -612,6 +630,118 @@ function renderImageGrid() {
 function removeImage(i) { images.splice(i, 1); renderImageGrid(); updatePreview(); }
 
 // ── STRIPE ──
+// ── VALIDATION ──
+const SLUG_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+
+function setFieldState(id, valid, errId, errMsg, okId, okMsg) {
+  const el = document.getElementById(id);
+  el.classList.toggle('valid', valid);
+  el.classList.toggle('invalid', !valid);
+  if (errId) {
+    const e = document.getElementById(errId);
+    e.textContent = errMsg || e.textContent;
+    e.classList.toggle('show', !valid);
+  }
+  if (okId) {
+    const o = document.getElementById(okId);
+    if (o) { o.textContent = okMsg || ''; o.classList.toggle('show', valid && !!okMsg); }
+  }
+  return valid;
+}
+
+function charCount(inputId, countId, max) {
+  const el = document.getElementById(inputId);
+  const ct = document.getElementById(countId);
+  const len = el.value.length;
+  ct.textContent = `${len}/${max}`;
+  ct.className = 'char-count' + (len > max * 0.9 ? ' warn' : '') + (len >= max ? ' over' : '');
+}
+
+function validateName() {
+  charCount('fName','fNameCount',120);
+  const v = document.getElementById('fName').value.trim();
+  // Auto-generate slug
+  if (v && !document.getElementById('fSlug').dataset.manual) {
+    document.getElementById('fSlug').value = slugify(v);
+    validateSlug();
+  }
+  return setFieldState('fName', v.length >= 3, 'fNameErr');
+}
+
+function validateSku() {
+  const v = document.getElementById('fSku').value.trim();
+  document.getElementById('fSku').value = v.toUpperCase();
+  return setFieldState('fSku', v.length >= 1, 'fSkuErr');
+}
+
+function validateSlug() {
+  const el = document.getElementById('fSlug');
+  let v = el.value.trim().toLowerCase().replace(/[^a-z0-9-]/g,'').replace(/--+/g,'-').replace(/^-|-$/g,'');
+  el.value = v;
+  // Check for duplicate slug against live products
+  const existingSlugs = Array.from(document.querySelectorAll('#productListCards [data-slug]')).map(x=>x.dataset.slug);
+  if (existingSlugs.includes(v)) {
+    return setFieldState('fSlug', false, 'fSlugErr', 'This slug already exists — choose a unique one.', 'fSlugOk');
+  }
+  const valid = SLUG_RE.test(v) && v.length >= 2;
+  return setFieldState('fSlug', valid, 'fSlugErr', 'Slug must be lowercase letters, numbers, and hyphens only.', 'fSlugOk', valid ? `✓ stompguard-site.pages.dev/#products` : '');
+}
+
+function validateDesc() {
+  charCount('fDesc','fDescCount',400);
+  const v = document.getElementById('fDesc').value.trim();
+  return setFieldState('fDesc', v.length >= 20, 'fDescErr');
+}
+
+function validatePrice() {
+  const v = parseFloat(document.getElementById('fCartPrice').value);
+  const valid = !isNaN(v) && v > 0 && v <= 9999.99;
+  document.getElementById('fPricePreview').textContent = valid ? '$' + v.toFixed(2) : '';
+  // Sync display price
+  if (valid) document.getElementById('fCartPrice').dataset.price = '$' + v.toFixed(2);
+  return setFieldState('fCartPrice', valid, 'fPriceErr');
+}
+
+function validateImages() {
+  const valid = images.length > 0;
+  const errEl = document.getElementById('fImgErr');
+  errEl.classList.toggle('show', !valid);
+  return valid;
+}
+
+function validateStripeId() {
+  const v = document.getElementById('fPriceId').value.trim();
+  const valid = v.startsWith('price_') && v.length > 10;
+  setFieldState('fPriceId', valid, null);
+  return valid;
+}
+
+function validateAll() {
+  const checks = [
+    validateName(),
+    validateSku(),
+    validateSlug(),
+    validateDesc(),
+    validatePrice(),
+    validateImages(),
+    validateStripeId(),
+  ];
+  if (!checks[6]) {
+    document.getElementById('fPriceId').classList.add('invalid');
+    alert('A Stripe Price ID (price_...) is required before committing. Create it using the Stripe section above.');
+    return false;
+  }
+  return checks.slice(0,6).every(Boolean);
+}
+
+// Mark slug as manually edited
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('fSlug').addEventListener('input', () => {
+    document.getElementById('fSlug').dataset.manual = '1';
+    validateSlug();
+  });
+});
+
 function checkStripeKey() {
   const key = document.getElementById('fStripeKey').value.trim();
   const dot  = document.getElementById('stripeStatusDot');
@@ -677,8 +807,9 @@ function slugify(s) { return s.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(
 function updatePreview() {
   const name      = document.getElementById('fName').value.trim() || 'Product Name';
   const sku       = document.getElementById('fSku').value.trim()  || 'SKU';
-  const price     = document.getElementById('fPrice').value.trim() || '$0.00';
-  const cartPrice = parseFloat(document.getElementById('fCartPrice').value) || 0;
+  const cartPriceRaw = parseFloat(document.getElementById('fCartPrice').value) || 0;
+  const price     = cartPriceRaw > 0 ? '$' + cartPriceRaw.toFixed(2) : '$0.00';
+  const cartPrice = cartPriceRaw;
   const desc      = document.getElementById('fDesc').value.trim()  || 'Description will appear here.';
   const shipping  = document.getElementById('fShipping').value;
   const priceId   = document.getElementById('fPriceId').value.trim();
@@ -740,8 +871,7 @@ function openCommit() {
   const slug    = document.getElementById('fSlug').value.trim();
   const name    = document.getElementById('fName').value.trim();
   const priceId = document.getElementById('fPriceId').value.trim();
-  if (!slug || !name) { alert('Product name and slug are required.'); return; }
-  if (!priceId) { alert('Stripe Price ID is required before committing.'); return; }
+  if (!validateAll()) return;
   if (!SESSION_PAT) { alert('No GitHub token in session. Please log in again.'); return; }
   // Reset dots
   ['dot1','dot2','dot3','dot4'].forEach(id => {
@@ -815,8 +945,9 @@ async function executeCommit() {
     const slug      = document.getElementById('fSlug').value.trim();
     const name      = document.getElementById('fName').value.trim();
     const sku       = document.getElementById('fSku').value.trim();
-    const price     = document.getElementById('fPrice').value.trim();
-    const cartPrice = parseFloat(document.getElementById('fCartPrice').value);
+    const cartPriceNum = parseFloat(document.getElementById('fCartPrice').value);
+    const price     = '$' + cartPriceNum.toFixed(2);
+    const cartPrice = cartPriceNum;
     const desc      = document.getElementById('fDesc').value.trim().replace(/'/g,"\\'");
     const specs     = getSpecs();
     const imageUrls = images.map(img => img.githubUrl || '');
@@ -910,7 +1041,11 @@ async function executeCommit() {
 // ── UTILS ──
 function resetForm() {
   if (!confirm('Clear all fields and start over?')) return;
-  ['fName','fSku','fSlug','fPrice','fCartPrice','fDesc','fPriceId'].forEach(id => document.getElementById(id).value = '');
+  ['fName','fSku','fSlug','fCartPrice','fDesc','fPriceId'].forEach(id => { const el=document.getElementById(id); if(el){el.value='';el.classList.remove('valid','invalid');} });
+  document.getElementById('fPricePreview').textContent = '';
+  document.getElementById('fNameCount').textContent = '0/120';
+  document.getElementById('fDescCount').textContent = '0/400';
+  ['fNameErr','fDescErr','fPriceErr','fSlugErr','fImgErr'].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.remove('show');});
   document.getElementById('specList').innerHTML = '';
   images = [];
   renderImageGrid();
@@ -996,7 +1131,7 @@ function confirmDelete(slug, name) {
   deleteTargetSlug = slug;
   deleteTargetName = name;
   document.getElementById('delProductName').textContent = name;
-  ['ddot1','ddot2','ddot3','ddot4','ddot5','ddot6'].forEach(id => document.getElementById(id).className = 'dot');
+  ['ddot1','ddot2','ddot3','ddot4','ddot5','ddot6','ddot7'].forEach(id => document.getElementById(id).className = 'dot');
   document.getElementById('deleteErr').classList.remove('show');
   document.getElementById('confirmDelBtn').disabled = false;
   document.getElementById('deleteActions').innerHTML = `
@@ -1079,8 +1214,26 @@ async function executeDelete() {
     source = source.replace(heroRegex, '');
     setDelStep(5, 'done');
 
-    // Step 6: Push
+    // Step 6: Delete image files from repo
     setDelStep(6, 'running');
+    try {
+      const imgFolder = `https://api.github.com/repos/${REPO}/contents/images/products/${slug}`;
+      const imgRes = await fetch(imgFolder, { headers: { 'Authorization': `Bearer ${SESSION_PAT}` } });
+      if (imgRes.ok) {
+        const imgFiles = await imgRes.json();
+        for (const imgFile of imgFiles) {
+          await fetch(`https://api.github.com/repos/${REPO}/contents/${imgFile.path}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${SESSION_PAT}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: `chore: delete images for removed product ${slug}`, sha: imgFile.sha, branch: 'main' })
+          });
+        }
+      }
+    } catch(imgErr) { /* non-fatal — images may not exist */ }
+    setDelStep(6, 'done');
+
+    // Step 7: Push
+    setDelStep(7, 'running');
     const encBytes2 = new TextEncoder().encode(source);
     let b64 = '';
     for (let i=0;i<encBytes2.length;i+=8192){
@@ -1093,7 +1246,7 @@ async function executeDelete() {
       body: JSON.stringify({ message: `feat: remove product — ${deleteTargetName}`, content: b64, sha, branch: 'main' })
     });
     if (!pushRes.ok) { const e = await pushRes.json(); throw new Error(e.message || 'Push failed'); }
-    setDelStep(6, 'done');
+        setDelStep(7, 'done');
 
     document.getElementById('deleteActions').innerHTML = `
       <div style="font-family:var(--font-mono);font-size:0.75rem;color:#2ecc71">
@@ -1105,7 +1258,7 @@ async function executeDelete() {
     errEl.textContent = '✕ ' + err.message;
     errEl.classList.add('show');
     document.getElementById('confirmDelBtn').disabled = false;
-    ['ddot1','ddot2','ddot3','ddot4','ddot5','ddot6'].forEach(id => {
+    ['ddot1','ddot2','ddot3','ddot4','ddot5','ddot6','ddot7'].forEach(id => {
       if (document.getElementById(id).classList.contains('running'))
         document.getElementById(id).className = 'dot err';
     });
