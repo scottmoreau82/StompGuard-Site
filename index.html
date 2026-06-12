@@ -1733,7 +1733,7 @@ footer { background: var(--black); border-top: 1px solid rgba(200,200,200,0.06);
       </div>
       <div class="product-card-body">
         <div class="product-card-unit">QC-003</div>
-        <div class="product-card-name">Neural DSP Nano Cortex StompGuard Acrylic Protector</div>
+        <div class="product-card-name">Nano Cortex StompGuard Acrylic Protector</div>
         <div class="product-card-footer">
           <span class="product-card-price">$21.95</span>
           <a class="add-btn" onclick="addToCart(event,'nano-cortex','Neural DSP Nano Cortex StompGuard',21.95)" href="#">Add to Cart</a>
@@ -2295,10 +2295,10 @@ const PRODUCTS = {
   },
   'nano-cortex': {
     sku: 'QC-003',
-    name: 'Neural DSP Nano Cortex StompGuard Acrylic Protector',
+    name: 'Nano Cortex StompGuard Acrylic Protector',
     price: '$21.95',
     cartId: 'nano-cortex',
-    cartName: 'Neural DSP Nano Cortex StompGuard',
+    cartName: 'Nano Cortex StompGuard',
     cartPrice: 21.95,
     desc: 'Precision-cut acrylic protector for the Neural DSP Nano Cortex. Slim profile protects your pedal from accidental stomps without adding bulk to your pedalboard.',
     specs: ['Precision CNC-cut for exact Nano Cortex fit','Low-profile slim design','Crystal-clear optical-grade acrylic','Tool-free installation','US manufactured'],
@@ -2417,7 +2417,7 @@ function resetHeroCycle() {
   heroCycleTimer = setInterval(function() {
     heroIndex = (heroIndex + 1) % HERO_PRODUCTS.length;
     setHeroProduct(heroIndex);
-  }, 4000);
+  }, 10000);
 }
 
 document.addEventListener('DOMContentLoaded', function() {
