@@ -308,10 +308,46 @@ html, body { height: 100%; background: var(--black); color: var(--text); font-fa
 <!-- ── APP ── -->
 <div id="app">
   <div class="topbar">
-    <div class="topbar-logo">STOMP<span>GUARD</span> <span style="font-size:0.9rem;color:var(--muted);font-family:var(--font-mono);letter-spacing:0.05em">// NEW PRODUCT</span></div>
-    <div class="topbar-status">
-      <div class="status-dot" id="stripeStatusDot"></div>
-      <span id="stripeStatusText" style="font-size:0.62rem">Stripe: not connected</span>
+    <div class="topbar-logo">STOMP<span>GUARD</span> <span style="font-size:0.9rem;color:var(--muted);font-family:var(--font-mono);letter-spacing:0.05em">// PRODUCT MANAGER</span></div>
+    <div style="display:flex;align-items:center;gap:16px">
+      <div class="topbar-status">
+        <div class="status-dot" id="stripeStatusDot"></div>
+        <span id="stripeStatusText" style="font-size:0.62rem">Stripe: not connected</span>
+      </div>
+      <div style="display:flex;gap:0;border:1px solid var(--gunmetal)">
+        <button id="tabAdd" onclick="switchTab('add')" style="background:var(--red);color:var(--chrome-hi);border:0;font-family:var(--font-mono);font-size:0.65rem;letter-spacing:0.15em;text-transform:uppercase;padding:8px 16px;cursor:pointer">+ Add Product</button>
+        <button id="tabDel" onclick="switchTab('delete')" style="background:none;color:var(--muted);border:0;font-family:var(--font-mono);font-size:0.65rem;letter-spacing:0.15em;text-transform:uppercase;padding:8px 16px;cursor:pointer">— Delete Product</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DELETE TAB -->
+  <div id="deletePanel" style="display:none;padding:32px;max-width:700px">
+    <div class="section-label" style="margin-bottom:20px">Delete a Product Listing</div>
+    <p style="font-family:var(--font-body);font-size:0.82rem;color:var(--muted);margin-bottom:20px;line-height:1.6">This will remove the product from <code style="font-family:var(--font-mono);color:var(--chrome-lo)">PRODUCTS</code> and <code style="font-family:var(--font-mono);color:var(--chrome-lo)">PRICE_IDS</code> in index.html and commit directly to GitHub.</p>
+    <div style="display:flex;gap:10px;margin-bottom:24px">
+      <button class="btn-ghost" onclick="loadProductList()">↻ Load Current Products</button>
+      <span id="loadStatus" style="font-family:var(--font-mono);font-size:0.65rem;color:var(--muted);align-self:center"></span>
+    </div>
+    <div id="productListCards" style="display:flex;flex-direction:column;gap:10px"></div>
+  </div>
+
+  <!-- DELETE CONFIRM MODAL -->
+  <div id="deleteModal" style="position:fixed;inset:0;background:rgba(0,0,0,0.9);display:none;align-items:center;justify-content:center;z-index:500">
+    <div class="commit-box" style="max-width:460px">
+      <h2 style="color:#e74c3c">Delete Product</h2>
+      <p>You are about to permanently remove <strong id="delProductName" style="color:var(--text)"></strong> from the site. This cannot be undone.</p>
+      <div class="commit-checklist">
+        <div class="commit-check"><div class="dot" id="ddot1"></div><span id="dstep1">Fetch current index.html + SHA</span></div>
+        <div class="commit-check"><div class="dot" id="ddot2"></div><span id="dstep2">Remove from PRODUCTS object</span></div>
+        <div class="commit-check"><div class="dot" id="ddot3"></div><span id="dstep3">Remove from PRICE_IDS object</span></div>
+        <div class="commit-check"><div class="dot" id="ddot4"></div><span id="dstep4">Push updated index.html</span></div>
+      </div>
+      <div class="commit-err" id="deleteErr"></div>
+      <div style="display:flex;gap:10px" id="deleteActions">
+        <button class="btn-primary" id="confirmDelBtn" style="background:#8B0000;border-color:#B00000" onclick="executeDelete()">Delete &amp; Commit</button>
+        <button class="btn-ghost" onclick="closeDeleteModal()">Cancel</button>
+      </div>
     </div>
   </div>
 
@@ -772,8 +808,8 @@ async function executeCommit() {
 
     const newEntry = `\n  '${slug}': {\n    sku: '${sku}',\n    name: '${name}',\n    price: '${price}',\n    cartId: '${slug}',\n    cartName: '${name}',\n    cartPrice: ${cartPrice.toFixed(2)},\n    desc: '${desc}',\n    specs: ${specsStr},\n    images: ${imgStr}\n  }`;
 
-    // Find closing of PRODUCTS object: last };  before PRICE_IDS
-    const productsEnd = source.indexOf('\n};\n\nconst PRICE_IDS');
+    // PRODUCTS ends with }\n};\n\nfunction openProduct
+    const productsEnd = source.indexOf('\n};\n\nfunction openProduct');
     if (productsEnd === -1) throw new Error('Could not locate PRODUCTS object in index.html');
     source = source.slice(0, productsEnd) + ',' + newEntry + source.slice(productsEnd);
     setStep(2, 'done');
@@ -782,6 +818,7 @@ async function executeCommit() {
     setStep(3, 'running');
     const priceId    = document.getElementById('fPriceId').value.trim();
     const priceEntry = `\n  '${slug}': '${priceId}'`;
+    // PRICE_IDS ends with };\n\nlet cart
     const priceEnd   = source.indexOf('\n};\n\nlet cart');
     if (priceEnd === -1) throw new Error('Could not locate PRICE_IDS object in index.html');
     source = source.slice(0, priceEnd) + ',' + priceEntry + source.slice(priceEnd);
@@ -824,6 +861,172 @@ function resetForm() {
   renderImageGrid();
   addSpec();
   updatePreview();
+}
+
+// ── TABS ──
+function switchTab(tab) {
+  const addPanel = document.querySelector('.layout');
+  const delPanel = document.getElementById('deletePanel');
+  const actionBar = document.querySelector('.action-bar');
+  const tabAdd = document.getElementById('tabAdd');
+  const tabDel = document.getElementById('tabDel');
+  if (tab === 'add') {
+    addPanel.style.display = 'grid';
+    actionBar.style.display = 'flex';
+    delPanel.style.display = 'none';
+    tabAdd.style.background = 'var(--red)'; tabAdd.style.color = 'var(--chrome-hi)';
+    tabDel.style.background = 'none';       tabDel.style.color = 'var(--muted)';
+  } else {
+    addPanel.style.display = 'none';
+    actionBar.style.display = 'none';
+    delPanel.style.display = 'block';
+    tabDel.style.background = 'var(--red)'; tabDel.style.color = 'var(--chrome-hi)';
+    tabAdd.style.background = 'none';       tabAdd.style.color = 'var(--muted)';
+  }
+}
+
+// ── DELETE ──
+let deleteTargetSlug = '';
+let deleteTargetName = '';
+
+async function loadProductList() {
+  const statusEl = document.getElementById('loadStatus');
+  const cardsEl  = document.getElementById('productListCards');
+  statusEl.textContent = 'Loading...';
+  cardsEl.innerHTML = '';
+  try {
+    const apiUrl = `https://api.github.com/repos/${REPO}/contents/index.html?ref=main`;
+    const res = await fetch(apiUrl, { headers: { 'Authorization': `Bearer ${SESSION_PAT}` } });
+    if (!res.ok) throw new Error('Could not fetch index.html');
+    const fileData = await res.json();
+    const source = atob(fileData.content.replace(/\n/g,''));
+
+    // Extract slugs + names from PRODUCTS object using regex
+    const productRegex = /'\s*([\w-]+)'\s*:\s*\{[^}]*name\s*:\s*'([^']+)'/g;
+    const priceStart = source.indexOf('const PRICE_IDS');
+    const productsStart = source.indexOf('const PRODUCTS');
+    const productsSrc = source.slice(productsStart, productsStart + (source.indexOf('\nfunction openProduct') - productsStart));
+
+    let match;
+    const found = [];
+    while ((match = productRegex.exec(productsSrc)) !== null) {
+      found.push({ slug: match[1], name: match[2] });
+    }
+
+    if (!found.length) { statusEl.textContent = 'No products found.'; return; }
+    statusEl.textContent = `${found.length} product(s) loaded`;
+
+    found.forEach(p => {
+      const div = document.createElement('div');
+      div.style.cssText = 'background:var(--surface2);border:1px solid var(--gunmetal);padding:16px 20px;display:flex;justify-content:space-between;align-items:center';
+      div.innerHTML = `
+        <div>
+          <div style="font-family:var(--font-head);font-size:1.1rem;letter-spacing:0.06em">${p.name}</div>
+          <div style="font-family:var(--font-mono);font-size:0.6rem;color:var(--muted);margin-top:3px">${p.slug}</div>
+        </div>
+        <button onclick="confirmDelete('${p.slug}','${p.name.replace(/'/g,"\\'")}')}"
+          style="background:none;border:1px solid #8B0000;color:#B00000;font-family:var(--font-mono);font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;padding:8px 14px;cursor:pointer;transition:all 0.15s"
+          onmouseover="this.style.background='#8B0000';this.style.color='#fff'"
+          onmouseout="this.style.background='none';this.style.color='#B00000'">
+          Delete →
+        </button>`;
+      cardsEl.appendChild(div);
+    });
+  } catch(err) {
+    statusEl.textContent = '✕ ' + err.message;
+  }
+}
+
+function confirmDelete(slug, name) {
+  deleteTargetSlug = slug;
+  deleteTargetName = name;
+  document.getElementById('delProductName').textContent = name;
+  ['ddot1','ddot2','ddot3','ddot4'].forEach(id => document.getElementById(id).className = 'dot');
+  document.getElementById('deleteErr').classList.remove('show');
+  document.getElementById('confirmDelBtn').disabled = false;
+  document.getElementById('deleteActions').innerHTML = `
+    <button class="btn-primary" id="confirmDelBtn" style="background:#8B0000;border-color:#B00000" onclick="executeDelete()">Delete &amp; Commit</button>
+    <button class="btn-ghost" onclick="closeDeleteModal()">Cancel</button>`;
+  document.getElementById('deleteModal').style.display = 'flex';
+}
+function closeDeleteModal() { document.getElementById('deleteModal').style.display = 'none'; }
+
+function setDelStep(n, state) { document.getElementById('ddot'+n).className = 'dot ' + state; }
+
+async function executeDelete() {
+  document.getElementById('confirmDelBtn').disabled = true;
+  const errEl = document.getElementById('deleteErr');
+  errEl.classList.remove('show');
+  const slug = deleteTargetSlug;
+
+  try {
+    // Step 1: Fetch
+    setDelStep(1, 'running');
+    const apiUrl = `https://api.github.com/repos/${REPO}/contents/index.html?ref=main`;
+    const res = await fetch(apiUrl, { headers: { 'Authorization': `Bearer ${SESSION_PAT}` } });
+    if (!res.ok) throw new Error('Could not fetch index.html');
+    const fileData = await res.json();
+    const sha = fileData.sha;
+    let source = atob(fileData.content.replace(/\n/g,''));
+    setDelStep(1, 'done');
+
+    // Step 2: Remove from PRODUCTS
+    // Match the entry: optional comma before or after, the full key block
+    setDelStep(2, 'running');
+    // Build a regex that matches  ,?\s*'slug'\s*:\s*{...}  (non-greedy, handles nested)
+    // We'll do it manually: find the key, then count braces to find full block extent
+    const keyMarker = `'${slug}':`;
+    let idx = source.indexOf(keyMarker, source.indexOf('const PRODUCTS'));
+    if (idx === -1) throw new Error(`Could not find '${slug}' in PRODUCTS`);
+    // Walk back to find leading comma
+    let blockStart = idx;
+    // Look for a comma before whitespace before this key
+    const before = source.slice(0, blockStart);
+    const commaIdx = before.lastIndexOf(',');
+    const betweenCommaAndKey = before.slice(commaIdx+1);
+    if (/^\s*$/.test(betweenCommaAndKey)) blockStart = commaIdx;
+    // Walk forward to find closing brace of this entry
+    let braceCount = 0, blockEnd = idx;
+    for (let i = idx; i < source.length; i++) {
+      if (source[i] === '{') braceCount++;
+      else if (source[i] === '}') { braceCount--; if (braceCount === 0) { blockEnd = i+1; break; } }
+    }
+    source = source.slice(0, blockStart) + source.slice(blockEnd);
+    setDelStep(2, 'done');
+
+    // Step 3: Remove from PRICE_IDS
+    setDelStep(3, 'running');
+    // Match:  ,?\s*'slug'\s*:\s*'price_...'\n
+    const priceRegex = new RegExp(`,?\\s*'${slug}'\\s*:\\s*'[^']*'`);
+    source = source.replace(priceRegex, '');
+    setDelStep(3, 'done');
+
+    // Step 4: Push
+    setDelStep(4, 'running');
+    const b64 = btoa(unescape(encodeURIComponent(source)));
+    const pushRes = await fetch(apiUrl, {
+      method: 'PUT',
+      headers: { 'Authorization': `Bearer ${SESSION_PAT}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: `feat: remove product — ${deleteTargetName}`, content: b64, sha, branch: 'main' })
+    });
+    if (!pushRes.ok) { const e = await pushRes.json(); throw new Error(e.message || 'Push failed'); }
+    setDelStep(4, 'done');
+
+    document.getElementById('deleteActions').innerHTML = `
+      <div style="font-family:var(--font-mono);font-size:0.75rem;color:#2ecc71">
+        ✓ Deleted. Cloudflare deploys in ~30s.
+      </div>
+      <button class="btn-ghost" onclick="closeDeleteModal();loadProductList()">Done</button>`;
+
+  } catch(err) {
+    errEl.textContent = '✕ ' + err.message;
+    errEl.classList.add('show');
+    document.getElementById('confirmDelBtn').disabled = false;
+    ['ddot1','ddot2','ddot3','ddot4'].forEach(id => {
+      if (document.getElementById(id).classList.contains('running'))
+        document.getElementById(id).className = 'dot err';
+    });
+  }
 }
 
 // Init
