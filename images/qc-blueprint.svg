@@ -1,154 +1,164 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 640" width="900" height="640" style="background:#080808;">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 560" width="900" height="560" style="background:#080808;">
   <defs>
     <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
-      <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(0,180,255,0.07)" stroke-width="0.5"/>
+      <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(0,180,255,0.06)" stroke-width="0.5"/>
     </pattern>
     <pattern id="grid-major" width="100" height="100" patternUnits="userSpaceOnUse">
       <rect width="100" height="100" fill="url(#grid)"/>
-      <path d="M 100 0 L 0 0 0 100" fill="none" stroke="rgba(0,180,255,0.15)" stroke-width="1"/>
+      <path d="M 100 0 L 0 0 0 100" fill="none" stroke="rgba(0,180,255,0.13)" stroke-width="1"/>
     </pattern>
     <filter id="glow">
-      <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+      <feGaussianBlur stdDeviation="1.5" result="coloredBlur"/>
+      <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="glow-soft">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
       <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
     </filter>
   </defs>
 
-  <!-- Grid background -->
-  <rect width="900" height="640" fill="url(#grid-major)"/>
+  <!-- Grid -->
+  <rect width="900" height="560" fill="url(#grid-major)"/>
 
-  <!-- Title block -->
-  <text x="40" y="38" font-family="Share Tech Mono, monospace" font-size="10" fill="rgba(0,180,255,0.5)" letter-spacing="3">STOMPGUARD INDUSTRIES // PRECISION PROTECTION SYSTEMS</text>
-  <text x="40" y="56" font-family="Share Tech Mono, monospace" font-size="18" fill="#00B4FF" letter-spacing="4" filter="url(#glow)">QUAD CORTEX ACRYLIC PROTECTOR</text>
-  <text x="40" y="72" font-family="Share Tech Mono, monospace" font-size="9" fill="rgba(0,180,255,0.4)" letter-spacing="2">PART NO: QC-001 // REV: A // SCALE 1:1.5 // UNITS: mm</text>
+  <!-- Header -->
+  <text x="30" y="28" font-family="Share Tech Mono,monospace" font-size="8" fill="rgba(0,180,255,0.4)" letter-spacing="3">STOMPGUARD INDUSTRIES // PRECISION PROTECTION SYSTEMS // US MANUFACTURED</text>
+  <text x="30" y="48" font-family="Share Tech Mono,monospace" font-size="16" fill="#00B4FF" letter-spacing="4" filter="url(#glow)">QUAD CORTEX ACRYLIC PROTECTOR — QC-001</text>
+  <text x="30" y="62" font-family="Share Tech Mono,monospace" font-size="8" fill="rgba(0,180,255,0.35)" letter-spacing="2">PART NO: QC-001 // REV: A // SCALE 1:1 // UNITS: mm // MATERIAL: OPTICAL-GRADE ACRYLIC t=3.0mm</text>
+  <line x1="30" y1="70" x2="870" y2="70" stroke="rgba(0,180,255,0.18)" stroke-width="0.5"/>
 
-  <!-- Divider -->
-  <line x1="40" y1="82" x2="860" y2="82" stroke="rgba(0,180,255,0.2)" stroke-width="0.5"/>
+  <!-- ── OUTER BODY (from DXF LWPOLYLINE: ±145 x, -86.25 to 106.25 y) ── -->
+  <!-- Mapped: x=100.5 to 799.5, y=13.9 to 477.9, corners at r~12px -->
+  <rect x="100.5" y="83" width="699" height="395" rx="12" ry="12"
+    fill="rgba(0,180,255,0.025)" stroke="#00B4FF" stroke-width="1.8" filter="url(#glow)"/>
 
-  <!-- ── MAIN TOP VIEW ── -->
-  <!-- Outer body -->
-  <rect x="120" y="110" width="580" height="380" rx="12" ry="12"
-    fill="none" stroke="#00B4FF" stroke-width="1.5" filter="url(#glow)"/>
+  <!-- Inner acrylic plate outline (inset 4px) -->
+  <rect x="104.5" y="87" width="691" height="387" rx="9" ry="9"
+    fill="none" stroke="rgba(0,180,255,0.2)" stroke-width="0.6" stroke-dasharray="6,4"/>
 
-  <!-- Acrylic cover plate (slightly inset) -->
-  <rect x="130" y="120" width="560" height="360" rx="8" ry="8"
-    fill="rgba(0,180,255,0.03)" stroke="rgba(0,180,255,0.4)" stroke-width="0.8" stroke-dasharray="4,3"/>
+  <!-- ── SCREEN SHIELD REGION (DXF: -95 to 95 x, -1.75 to 109.25 y) ── -->
+  <!-- Mapped: x=221 to 679, y=83 to 274 -->
+  <rect x="221" y="83" width="458" height="191"
+    fill="rgba(0,180,255,0.04)" stroke="#00B4FF" stroke-width="1.2" filter="url(#glow)"/>
+  <text x="450" y="186" font-family="Share Tech Mono,monospace" font-size="9" fill="rgba(0,180,255,0.55)" text-anchor="middle" letter-spacing="2">SCREEN SHIELD ZONE</text>
+  <text x="450" y="200" font-family="Share Tech Mono,monospace" font-size="7.5" fill="rgba(0,180,255,0.3)" text-anchor="middle">OPTICAL-GRADE ACRYLIC // CRYSTAL CLEAR</text>
 
-  <!-- Screen shield region -->
-  <rect x="180" y="140" width="300" height="210" rx="4"
-    fill="rgba(0,180,255,0.05)" stroke="#00B4FF" stroke-width="1" filter="url(#glow)"/>
-  <text x="330" y="248" font-family="Share Tech Mono, monospace" font-size="9" fill="rgba(0,180,255,0.6)" text-anchor="middle" letter-spacing="2">SCREEN SHIELD</text>
-  <text x="330" y="262" font-family="Share Tech Mono, monospace" font-size="8" fill="rgba(0,180,255,0.35)" text-anchor="middle">OPTICAL-GRADE ACRYLIC</text>
+  <!-- ── VOLUME KNOB CUTOUT (DXF: -115, 50.25, r=16) ── -->
+  <!-- Mapped: (172.8, 148.9) r=38.6 -->
+  <circle cx="172.8" cy="148.9" r="38.6"
+    fill="rgba(0,0,0,0.4)" stroke="rgba(0,180,255,0.5)" stroke-width="1" stroke-dasharray="4,3"/>
+  <circle cx="172.8" cy="148.9" r="25"
+    fill="none" stroke="rgba(0,180,255,0.25)" stroke-width="0.6"/>
+  <text x="172.8" y="200" font-family="Share Tech Mono,monospace" font-size="7" fill="rgba(0,180,255,0.4)" text-anchor="middle">VOLUME</text>
+  <text x="172.8" y="210" font-family="Share Tech Mono,monospace" font-size="6.5" fill="rgba(0,180,255,0.25)" text-anchor="middle">Ø32mm CLEARANCE</text>
 
-  <!-- Footswitch cutouts - top row (A B C D) -->
-  <!-- A -->
-  <circle cx="175" cy="390" r="22" fill="none" stroke="#00B4FF" stroke-width="1.2" filter="url(#glow)"/>
-  <circle cx="175" cy="390" r="14" fill="none" stroke="rgba(0,180,255,0.3)" stroke-width="0.6"/>
-  <text x="175" y="394" font-family="Share Tech Mono, monospace" font-size="9" fill="rgba(0,180,255,0.7)" text-anchor="middle">A</text>
+  <!-- ── FOOTSWITCHES — TOP ROW (A B C D + tempo/mode) ── -->
+  <!-- A: (141.5, 335.7) -->
+  <circle cx="141.5" cy="335.7" r="15.7" fill="rgba(0,0,0,0.5)" stroke="#00B4FF" stroke-width="1.3" filter="url(#glow)"/>
+  <circle cx="141.5" cy="335.7" r="9" fill="none" stroke="rgba(0,180,255,0.3)" stroke-width="0.6"/>
+  <text x="141.5" y="339.5" font-family="Share Tech Mono,monospace" font-size="8" fill="rgba(0,180,255,0.8)" text-anchor="middle">A</text>
 
-  <!-- B -->
-  <circle cx="295" cy="390" r="22" fill="none" stroke="#00B4FF" stroke-width="1.2" filter="url(#glow)"/>
-  <circle cx="295" cy="390" r="14" fill="none" stroke="rgba(0,180,255,0.3)" stroke-width="0.6"/>
-  <text x="295" y="394" font-family="Share Tech Mono, monospace" font-size="9" fill="rgba(0,180,255,0.7)" text-anchor="middle">B</text>
+  <!-- B: (295.8, 335.7) -->
+  <circle cx="295.8" cy="335.7" r="15.7" fill="rgba(0,0,0,0.5)" stroke="#00B4FF" stroke-width="1.3" filter="url(#glow)"/>
+  <circle cx="295.8" cy="335.7" r="9" fill="none" stroke="rgba(0,180,255,0.3)" stroke-width="0.6"/>
+  <text x="295.8" y="339.5" font-family="Share Tech Mono,monospace" font-size="8" fill="rgba(0,180,255,0.8)" text-anchor="middle">B</text>
 
-  <!-- C -->
-  <circle cx="415" cy="390" r="22" fill="none" stroke="#00B4FF" stroke-width="1.2" filter="url(#glow)"/>
-  <circle cx="415" cy="390" r="14" fill="none" stroke="rgba(0,180,255,0.3)" stroke-width="0.6"/>
-  <text x="415" y="394" font-family="Share Tech Mono, monospace" font-size="9" fill="rgba(0,180,255,0.7)" text-anchor="middle">C</text>
+  <!-- C: (450, 335.7) -->
+  <circle cx="450" cy="335.7" r="15.7" fill="rgba(0,0,0,0.5)" stroke="#00B4FF" stroke-width="1.3" filter="url(#glow)"/>
+  <circle cx="450" cy="335.7" r="9" fill="none" stroke="rgba(0,180,255,0.3)" stroke-width="0.6"/>
+  <text x="450" y="339.5" font-family="Share Tech Mono,monospace" font-size="8" fill="rgba(0,180,255,0.8)" text-anchor="middle">C</text>
 
-  <!-- D -->
-  <circle cx="535" cy="390" r="22" fill="none" stroke="#00B4FF" stroke-width="1.2" filter="url(#glow)"/>
-  <circle cx="535" cy="390" r="14" fill="none" stroke="rgba(0,180,255,0.3)" stroke-width="0.6"/>
-  <text x="535" y="394" font-family="Share Tech Mono, monospace" font-size="9" fill="rgba(0,180,255,0.7)" text-anchor="middle">D</text>
+  <!-- D: (604.2, 335.7) -->
+  <circle cx="604.2" cy="335.7" r="15.7" fill="rgba(0,0,0,0.5)" stroke="#00B4FF" stroke-width="1.3" filter="url(#glow)"/>
+  <circle cx="604.2" cy="335.7" r="9" fill="none" stroke="rgba(0,180,255,0.3)" stroke-width="0.6"/>
+  <text x="604.2" y="339.5" font-family="Share Tech Mono,monospace" font-size="8" fill="rgba(0,180,255,0.8)" text-anchor="middle">D</text>
 
-  <!-- Tempo/Mode buttons -->
-  <circle cx="635" cy="375" r="14" fill="none" stroke="rgba(0,180,255,0.6)" stroke-width="1"/>
-  <circle cx="635" cy="415" r="14" fill="none" stroke="rgba(0,180,255,0.6)" stroke-width="1"/>
-  <text x="665" y="379" font-family="Share Tech Mono, monospace" font-size="7" fill="rgba(0,180,255,0.4)">MODE</text>
-  <text x="665" y="419" font-family="Share Tech Mono, monospace" font-size="7" fill="rgba(0,180,255,0.4)">TEMPO</text>
+  <!-- MODE: (758.5, 335.7) -->
+  <circle cx="758.5" cy="335.7" r="15.7" fill="rgba(0,0,0,0.5)" stroke="rgba(0,180,255,0.55)" stroke-width="1"/>
+  <text x="758.5" y="339.5" font-family="Share Tech Mono,monospace" font-size="6" fill="rgba(0,180,255,0.6)" text-anchor="middle">MODE</text>
 
-  <!-- Bottom row (E F G H) -->
-  <!-- E -->
-  <circle cx="175" cy="460" r="22" fill="none" stroke="#00B4FF" stroke-width="1.2" filter="url(#glow)"/>
-  <circle cx="175" cy="460" r="14" fill="none" stroke="rgba(0,180,255,0.3)" stroke-width="0.6"/>
-  <text x="175" y="464" font-family="Share Tech Mono, monospace" font-size="9" fill="rgba(0,180,255,0.7)" text-anchor="middle">E</text>
+  <!-- ── FOOTSWITCHES — BOTTOM ROW (E F G H + tempo) ── -->
+  <!-- E: (141.5, 447.7) -->
+  <circle cx="141.5" cy="447.7" r="15.7" fill="rgba(0,0,0,0.5)" stroke="#00B4FF" stroke-width="1.3" filter="url(#glow)"/>
+  <circle cx="141.5" cy="447.7" r="9" fill="none" stroke="rgba(0,180,255,0.3)" stroke-width="0.6"/>
+  <text x="141.5" y="451.5" font-family="Share Tech Mono,monospace" font-size="8" fill="rgba(0,180,255,0.8)" text-anchor="middle">E</text>
 
-  <!-- F -->
-  <circle cx="295" cy="460" r="22" fill="none" stroke="#00B4FF" stroke-width="1.2" filter="url(#glow)"/>
-  <circle cx="295" cy="460" r="14" fill="none" stroke="rgba(0,180,255,0.3)" stroke-width="0.6"/>
-  <text x="295" y="464" font-family="Share Tech Mono, monospace" font-size="9" fill="rgba(0,180,255,0.7)" text-anchor="middle">F</text>
+  <!-- F: (295.8, 447.7) -->
+  <circle cx="295.8" cy="447.7" r="15.7" fill="rgba(0,0,0,0.5)" stroke="#00B4FF" stroke-width="1.3" filter="url(#glow)"/>
+  <circle cx="295.8" cy="447.7" r="9" fill="none" stroke="rgba(0,180,255,0.3)" stroke-width="0.6"/>
+  <text x="295.8" y="451.5" font-family="Share Tech Mono,monospace" font-size="8" fill="rgba(0,180,255,0.8)" text-anchor="middle">F</text>
 
-  <!-- G -->
-  <circle cx="415" cy="460" r="22" fill="none" stroke="#00B4FF" stroke-width="1.2" filter="url(#glow)"/>
-  <circle cx="415" cy="460" r="14" fill="none" stroke="rgba(0,180,255,0.3)" stroke-width="0.6"/>
-  <text x="415" y="464" font-family="Share Tech Mono, monospace" font-size="9" fill="rgba(0,180,255,0.7)" text-anchor="middle">G</text>
+  <!-- G: (450, 447.7) -->
+  <circle cx="450" cy="447.7" r="15.7" fill="rgba(0,0,0,0.5)" stroke="#00B4FF" stroke-width="1.3" filter="url(#glow)"/>
+  <circle cx="450" cy="447.7" r="9" fill="none" stroke="rgba(0,180,255,0.3)" stroke-width="0.6"/>
+  <text x="450" y="451.5" font-family="Share Tech Mono,monospace" font-size="8" fill="rgba(0,180,255,0.8)" text-anchor="middle">G</text>
 
-  <!-- H -->
-  <circle cx="535" cy="460" r="22" fill="none" stroke="#00B4FF" stroke-width="1.2" filter="url(#glow)"/>
-  <circle cx="535" cy="460" r="14" fill="none" stroke="rgba(0,180,255,0.3)" stroke-width="0.6"/>
-  <text x="535" y="464" font-family="Share Tech Mono, monospace" font-size="9" fill="rgba(0,180,255,0.7)" text-anchor="middle">H</text>
+  <!-- H: (604.2, 447.7) -->
+  <circle cx="604.2" cy="447.7" r="15.7" fill="rgba(0,0,0,0.5)" stroke="#00B4FF" stroke-width="1.3" filter="url(#glow)"/>
+  <circle cx="604.2" cy="447.7" r="9" fill="none" stroke="rgba(0,180,255,0.3)" stroke-width="0.6"/>
+  <text x="604.2" y="451.5" font-family="Share Tech Mono,monospace" font-size="8" fill="rgba(0,180,255,0.8)" text-anchor="middle">H</text>
 
-  <!-- Volume knob cutout -->
-  <circle cx="155" cy="220" r="30" fill="none" stroke="rgba(0,180,255,0.5)" stroke-width="1" stroke-dasharray="3,2"/>
-  <circle cx="155" cy="220" r="20" fill="none" stroke="rgba(0,180,255,0.3)" stroke-width="0.6"/>
-  <text x="155" y="268" font-family="Share Tech Mono, monospace" font-size="7" fill="rgba(0,180,255,0.4)" text-anchor="middle">VOL</text>
+  <!-- TEMPO: (758.5, 447.7) -->
+  <circle cx="758.5" cy="447.7" r="15.7" fill="rgba(0,0,0,0.5)" stroke="rgba(0,180,255,0.55)" stroke-width="1"/>
+  <text x="758.5" y="451.5" font-family="Share Tech Mono,monospace" font-size="5.5" fill="rgba(0,180,255,0.6)" text-anchor="middle">TEMPO</text>
 
-  <!-- Corner mounting points -->
-  <circle cx="138" cy="128" r="5" fill="none" stroke="rgba(0,180,255,0.4)" stroke-width="0.8"/>
-  <circle cx="682" cy="128" r="5" fill="none" stroke="rgba(0,180,255,0.4)" stroke-width="0.8"/>
-  <circle cx="138" cy="482" r="5" fill="none" stroke="rgba(0,180,255,0.4)" stroke-width="0.8"/>
-  <circle cx="682" cy="482" r="5" fill="none" stroke="rgba(0,180,255,0.4)" stroke-width="0.8"/>
+  <!-- BUTTON top right: (758.5, 157.3) -->
+  <circle cx="758.5" cy="157.3" r="15.7" fill="rgba(0,0,0,0.4)" stroke="rgba(0,180,255,0.4)" stroke-width="0.8" stroke-dasharray="3,2"/>
+
+  <!-- ── CORNER MOUNT HOLES ── -->
+  <circle cx="241.5" cy="253.7" r="7" fill="none" stroke="rgba(0,180,255,0.45)" stroke-width="0.8"/>
+  <circle cx="658.5" cy="253.7" r="7" fill="none" stroke="rgba(0,180,255,0.45)" stroke-width="0.8"/>
+  <circle cx="658.5" cy="83" r="7" fill="none" stroke="rgba(0,180,255,0.45)" stroke-width="0.8"/>
+  <circle cx="241.5" cy="83" r="7" fill="none" stroke="rgba(0,180,255,0.45)" stroke-width="0.8"/>
 
   <!-- ── DIMENSION LINES ── -->
-  <!-- Width dimension -->
-  <line x1="120" y1="520" x2="700" y2="520" stroke="rgba(0,180,255,0.35)" stroke-width="0.8"/>
-  <line x1="120" y1="512" x2="120" y2="528" stroke="rgba(0,180,255,0.35)" stroke-width="0.8"/>
-  <line x1="700" y1="512" x2="700" y2="528" stroke="rgba(0,180,255,0.35)" stroke-width="0.8"/>
-  <text x="410" y="538" font-family="Share Tech Mono, monospace" font-size="9" fill="rgba(0,180,255,0.6)" text-anchor="middle" letter-spacing="1">290.0 mm</text>
+  <!-- Overall width -->
+  <line x1="100.5" y1="500" x2="799.5" y2="500" stroke="rgba(0,180,255,0.3)" stroke-width="0.8"/>
+  <line x1="100.5" y1="493" x2="100.5" y2="507" stroke="rgba(0,180,255,0.3)" stroke-width="0.8"/>
+  <line x1="799.5" y1="493" x2="799.5" y2="507" stroke="rgba(0,180,255,0.3)" stroke-width="0.8"/>
+  <text x="450" y="516" font-family="Share Tech Mono,monospace" font-size="8.5" fill="rgba(0,180,255,0.55)" text-anchor="middle" letter-spacing="1">290.0 mm</text>
 
-  <!-- Height dimension -->
-  <line x1="740" y1="110" x2="740" y2="490" stroke="rgba(0,180,255,0.35)" stroke-width="0.8"/>
-  <line x1="732" y1="110" x2="748" y2="110" stroke="rgba(0,180,255,0.35)" stroke-width="0.8"/>
-  <line x1="732" y1="490" x2="748" y2="490" stroke="rgba(0,180,255,0.35)" stroke-width="0.8"/>
-  <text x="760" y="304" font-family="Share Tech Mono, monospace" font-size="9" fill="rgba(0,180,255,0.6)" letter-spacing="1">195.0 mm</text>
+  <!-- Overall height -->
+  <line x1="840" y1="83" x2="840" y2="478" stroke="rgba(0,180,255,0.3)" stroke-width="0.8"/>
+  <line x1="833" y1="83" x2="847" y2="83" stroke="rgba(0,180,255,0.3)" stroke-width="0.8"/>
+  <line x1="833" y1="478" x2="847" y2="478" stroke="rgba(0,180,255,0.3)" stroke-width="0.8"/>
+  <text x="858" y="284" font-family="Share Tech Mono,monospace" font-size="8.5" fill="rgba(0,180,255,0.55)" letter-spacing="1">195.0</text>
+  <text x="858" y="295" font-family="Share Tech Mono,monospace" font-size="8.5" fill="rgba(0,180,255,0.55)" letter-spacing="1">mm</text>
 
-  <!-- Screen shield dimension -->
-  <line x1="180" y1="95" x2="480" y2="95" stroke="rgba(0,180,255,0.2)" stroke-width="0.6" stroke-dasharray="3,2"/>
-  <line x1="180" y1="90" x2="180" y2="100" stroke="rgba(0,180,255,0.2)" stroke-width="0.6"/>
-  <line x1="480" y1="90" x2="480" y2="100" stroke="rgba(0,180,255,0.2)" stroke-width="0.6"/>
-  <text x="330" y="92" font-family="Share Tech Mono, monospace" font-size="7" fill="rgba(0,180,255,0.35)" text-anchor="middle">SCREEN SHIELD ZONE: 198.0 mm</text>
+  <!-- Screen width dimension -->
+  <line x1="221" y1="76" x2="679" y2="76" stroke="rgba(0,180,255,0.2)" stroke-width="0.6"/>
+  <line x1="221" y1="72" x2="221" y2="80" stroke="rgba(0,180,255,0.2)" stroke-width="0.6"/>
+  <line x1="679" y1="72" x2="679" y2="80" stroke="rgba(0,180,255,0.2)" stroke-width="0.6"/>
+  <text x="450" y="74" font-family="Share Tech Mono,monospace" font-size="7" fill="rgba(0,180,255,0.35)" text-anchor="middle">190.0 mm SHIELD ZONE</text>
 
-  <!-- ── DETAIL CALLOUTS ── -->
+  <!-- ── CALLOUT LINES ── -->
   <!-- Footswitch callout -->
-  <line x1="175" y1="368" x2="175" y2="330" stroke="rgba(0,180,255,0.25)" stroke-width="0.6"/>
-  <line x1="175" y1="330" x2="80" y2="316" stroke="rgba(0,180,255,0.25)" stroke-width="0.6"/>
-  <text x="78" y="312" font-family="Share Tech Mono, monospace" font-size="7" fill="rgba(0,180,255,0.45)" text-anchor="end">Ø44mm CUTOUT</text>
-  <text x="78" y="322" font-family="Share Tech Mono, monospace" font-size="7" fill="rgba(0,180,255,0.3)" text-anchor="end">×8 POSITIONS</text>
+  <line x1="141.5" y1="320" x2="141.5" y2="295" stroke="rgba(0,180,255,0.2)" stroke-width="0.6"/>
+  <line x1="141.5" y1="295" x2="60" y2="278" stroke="rgba(0,180,255,0.2)" stroke-width="0.6"/>
+  <text x="58" y="274" font-family="Share Tech Mono,monospace" font-size="7" fill="rgba(0,180,255,0.45)" text-anchor="end">Ø13mm FOOTSWITCH</text>
+  <text x="58" y="284" font-family="Share Tech Mono,monospace" font-size="7" fill="rgba(0,180,255,0.3)" text-anchor="end">×8 POSITIONS</text>
 
-  <!-- Screen shield callout -->
-  <line x1="480" y1="200" x2="560" y2="175" stroke="rgba(0,180,255,0.25)" stroke-width="0.6"/>
-  <text x="563" y="171" font-family="Share Tech Mono, monospace" font-size="7" fill="rgba(0,180,255,0.45)">OPTICAL ACRYLIC</text>
-  <text x="563" y="181" font-family="Share Tech Mono, monospace" font-size="7" fill="rgba(0,180,255,0.3)">t = 3.0 mm</text>
+  <!-- Volume knob callout -->
+  <line x1="172.8" y1="110.3" x2="172.8" y2="88" stroke="rgba(0,180,255,0.2)" stroke-width="0.6"/>
+  <line x1="172.8" y1="88" x2="60" y2="88" stroke="rgba(0,180,255,0.2)" stroke-width="0.6"/>
+  <text x="58" y="85" font-family="Share Tech Mono,monospace" font-size="7" fill="rgba(0,180,255,0.45)" text-anchor="end">Ø32mm KNOB</text>
+  <text x="58" y="95" font-family="Share Tech Mono,monospace" font-size="7" fill="rgba(0,180,255,0.3)" text-anchor="end">CLEARANCE ZONE</text>
 
-  <!-- Corner radius callout -->
-  <line x1="682" y1="128" x2="760" y2="108" stroke="rgba(0,180,255,0.25)" stroke-width="0.6"/>
-  <text x="763" y="104" font-family="Share Tech Mono, monospace" font-size="7" fill="rgba(0,180,255,0.45)">R12 CORNER</text>
-
-  <!-- ── TITLE BLOCK BOTTOM ── -->
-  <line x1="40" y1="580" x2="860" y2="580" stroke="rgba(0,180,255,0.15)" stroke-width="0.5"/>
-  <rect x="40" y="580" width="820" height="50" fill="none" stroke="rgba(0,180,255,0.1)" stroke-width="0.5"/>
-  <line x1="300" y1="580" x2="300" y2="630" stroke="rgba(0,180,255,0.1)" stroke-width="0.5"/>
-  <line x1="560" y1="580" x2="560" y2="630" stroke="rgba(0,180,255,0.1)" stroke-width="0.5"/>
-
-  <text x="55" y="598" font-family="Share Tech Mono, monospace" font-size="7" fill="rgba(0,180,255,0.3)" letter-spacing="1">MATERIAL</text>
-  <text x="55" y="614" font-family="Share Tech Mono, monospace" font-size="9" fill="rgba(0,180,255,0.55)">OPTICAL-GRADE ACRYLIC</text>
-
-  <text x="315" y="598" font-family="Share Tech Mono, monospace" font-size="7" fill="rgba(0,180,255,0.3)" letter-spacing="1">FINISH</text>
-  <text x="315" y="614" font-family="Share Tech Mono, monospace" font-size="9" fill="rgba(0,180,255,0.55)">CNC PRECISION CUT</text>
-
-  <text x="575" y="598" font-family="Share Tech Mono, monospace" font-size="7" fill="rgba(0,180,255,0.3)" letter-spacing="1">DRAWN BY</text>
-  <text x="575" y="614" font-family="Share Tech Mono, monospace" font-size="9" fill="rgba(0,180,255,0.55)">STOMPGUARD // QC-001-A</text>
+  <!-- Mount hole callout -->
+  <line x1="658.5" y1="90" x2="720" y2="78" stroke="rgba(0,180,255,0.2)" stroke-width="0.6"/>
+  <text x="722" y="75" font-family="Share Tech Mono,monospace" font-size="7" fill="rgba(0,180,255,0.45)">Ø5.8mm MOUNT</text>
+  <text x="722" y="85" font-family="Share Tech Mono,monospace" font-size="7" fill="rgba(0,180,255,0.3)">×4 CORNERS</text>
 
   <!-- SG watermark -->
-  <text x="450" y="310" font-family="Share Tech Mono, monospace" font-size="120" fill="rgba(0,180,255,0.02)" text-anchor="middle" font-weight="bold">SG</text>
+  <text x="450" y="320" font-family="Share Tech Mono,monospace" font-size="160" fill="rgba(0,180,255,0.015)" text-anchor="middle" font-weight="bold">SG</text>
 
+  <!-- ── TITLE BLOCK ── -->
+  <line x1="30" y1="530" x2="870" y2="530" stroke="rgba(0,180,255,0.12)" stroke-width="0.5"/>
+  <rect x="30" y="530" width="840" height="24" fill="none"/>
+  <line x1="250" y1="530" x2="250" y2="554" stroke="rgba(0,180,255,0.1)" stroke-width="0.5"/>
+  <line x1="500" y1="530" x2="500" y2="554" stroke="rgba(0,180,255,0.1)" stroke-width="0.5"/>
+  <line x1="700" y1="530" x2="700" y2="554" stroke="rgba(0,180,255,0.1)" stroke-width="0.5"/>
+  <text x="42" y="545" font-family="Share Tech Mono,monospace" font-size="7.5" fill="rgba(0,180,255,0.5)">MATERIAL: OPTICAL-GRADE ACRYLIC</text>
+  <text x="262" y="545" font-family="Share Tech Mono,monospace" font-size="7.5" fill="rgba(0,180,255,0.5)">PROCESS: CNC PRECISION CUT</text>
+  <text x="512" y="545" font-family="Share Tech Mono,monospace" font-size="7.5" fill="rgba(0,180,255,0.5)">FINISH: POLISHED CLEAR</text>
+  <text x="712" y="545" font-family="Share Tech Mono,monospace" font-size="7.5" fill="rgba(0,180,255,0.5)">DRAWN: STOMPGUARD // QC-001-A</text>
 </svg>
