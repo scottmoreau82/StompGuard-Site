@@ -296,7 +296,8 @@ html, body { height: 100%; background: var(--black); color: var(--text); font-fa
       <div class="commit-check"><div class="dot" id="dot2"></div><span id="step2">Inject product into PRODUCTS object</span></div>
       <div class="commit-check"><div class="dot" id="dot3"></div><span id="step3">Inject price ID into PRICE_IDS</span></div>
       <div class="commit-check"><div class="dot" id="dot4"></div><span id="step4">Inject product card into catalog grid</span></div>
-      <div class="commit-check"><div class="dot" id="dot5"></div><span id="step5">Push updated index.html</span></div>
+      <div class="commit-check"><div class="dot" id="dot5"></div><span id="step5">Add to hero rotation</span></div>
+      <div class="commit-check"><div class="dot" id="dot6"></div><span id="step6">Push updated index.html</span></div>
     </div>
     <div class="commit-err" id="commitErr"></div>
     <div class="commit-actions" id="commitActions">
@@ -343,7 +344,8 @@ html, body { height: 100%; background: var(--black); color: var(--text); font-fa
         <div class="commit-check"><div class="dot" id="ddot2"></div><span id="dstep2">Remove from PRODUCTS object</span></div>
         <div class="commit-check"><div class="dot" id="ddot3"></div><span id="dstep3">Remove from PRICE_IDS object</span></div>
         <div class="commit-check"><div class="dot" id="ddot4"></div><span id="dstep4">Remove product card from catalog grid</span></div>
-        <div class="commit-check"><div class="dot" id="ddot5"></div><span id="dstep5">Push updated index.html</span></div>
+        <div class="commit-check"><div class="dot" id="ddot5"></div><span id="dstep5">Remove from hero rotation</span></div>
+        <div class="commit-check"><div class="dot" id="ddot6"></div><span id="dstep6">Push updated index.html</span></div>
       </div>
       <div class="commit-err" id="deleteErr"></div>
       <div style="display:flex;gap:10px" id="deleteActions">
@@ -580,16 +582,24 @@ function renderImageGrid() {
     div.className = 'img-thumb';
     div.draggable = true;
     div.dataset.idx = i;
-    div.innerHTML = `<img src="${img.dataUrl}">
+    div.innerHTML = `<img src="${img.dataUrl}" draggable="false">
       ${i===0?'<div class="img-thumb-badge">Primary</div>':''}
       <div class="img-thumb-del" onclick="removeImage(${i})">✕</div>`;
-    div.addEventListener('dragstart', e => { dragSrcIdx = i; div.classList.add('dragging'); });
-    div.addEventListener('dragend',   () => { div.classList.remove('dragging'); renderImageGrid(); });
-    div.addEventListener('dragover',  e => { e.preventDefault(); div.classList.add('drag-over'); });
-    div.addEventListener('dragleave', () => div.classList.remove('drag-over'));
-    div.addEventListener('drop', e => {
-      e.preventDefault(); div.classList.remove('drag-over');
-      if (dragSrcIdx === null || dragSrcIdx === i) return;
+    // Pointer-based drag (works on iPad + desktop)
+    div.addEventListener('pointerdown', e => {
+      if (e.target.classList.contains('img-thumb-del')) return;
+      dragSrcIdx = i; div.classList.add('dragging');
+    });
+    div.addEventListener('pointerup', e => {
+      div.classList.remove('dragging');
+    });
+    div.addEventListener('pointerenter', e => {
+      if (dragSrcIdx !== null && dragSrcIdx !== i) div.classList.add('drag-over');
+    });
+    div.addEventListener('pointerleave', () => div.classList.remove('drag-over'));
+    div.addEventListener('pointerup', e => {
+      div.classList.remove('drag-over');
+      if (dragSrcIdx === null || dragSrcIdx === i) { dragSrcIdx = null; return; }
       const moved = images.splice(dragSrcIdx, 1)[0];
       images.splice(i, 0, moved);
       dragSrcIdx = null;
@@ -830,14 +840,30 @@ async function executeCommit() {
     setStep(4, 'running');
     const firstImageUrl = imageUrls[0] || '';
     const cardHtml = `\n    <div class="product-card" onclick="openProduct('${slug}')">\n      <div class="product-card-img">\n        <img src="${firstImageUrl}" alt="${name}"/>\n      </div>\n      <div class="product-card-body">\n        <div class="product-card-unit">${sku}</div>\n        <div class="product-card-name">${name}</div>\n        <div class="product-card-footer">\n          <span class="product-card-price">${price}</span>\n          <a class="add-btn" onclick="addToCart(event,'${slug}','${name}',${cartPrice.toFixed(2)})" href="#">Add to Cart</a>\n        </div>\n      </div>\n    </div>`;
-    const gridClose = '  </div>\n</section>';
-    const gridCloseIdx = source.indexOf(gridClose, source.indexOf('products-grid'));
-    if (gridCloseIdx === -1) throw new Error('Could not locate product grid closing tag');
-    source = source.slice(0, gridCloseIdx) + cardHtml + '\n' + source.slice(gridCloseIdx);
+    // Use id="products" to locate the grid precisely
+    const gridStart = source.indexOf('id="products"');
+    if (gridStart === -1) throw new Error('Could not locate products grid (id=products)');
+    // Find the closing </div> of the grid div — count nested divs from gridStart
+    let gdCount = 0, gridClose = -1;
+    for (let gi = gridStart; gi < source.length - 5; gi++) {
+      if (source.slice(gi,gi+4) === '<div') gdCount++;
+      else if (source.slice(gi,gi+6) === '</div>') { gdCount--; if (gdCount===0){gridClose=gi;break;} }
+    }
+    if (gridClose === -1) throw new Error('Could not find closing tag of products grid');
+    source = source.slice(0, gridClose) + cardHtml + '\n    ' + source.slice(gridClose);
     setStep(4, 'done');
 
-    // Step 5: Push
+    // Step 5: Inject into HERO_PRODUCTS array
     setStep(5, 'running');
+    const heroEntry = `\n  { id: '${slug}', badge: '', img: '${firstImageUrl}' }`;
+    const heroEnd = source.indexOf('\n];\n\nlet heroIndex');
+    if (heroEnd !== -1) {
+      source = source.slice(0, heroEnd) + ',' + heroEntry + source.slice(heroEnd);
+    }
+    setStep(5, 'done');
+
+    // Step 6: Push
+    setStep(6, 'running');
     const b64Updated = btoa(unescape(encodeURIComponent(source)));
     const pushRes = await fetch(apiUrl, {
       method: 'PUT',
@@ -845,7 +871,7 @@ async function executeCommit() {
       body: JSON.stringify({ message: `feat: add product — ${name}`, content: b64Updated, sha, branch: 'main' })
     });
     if (!pushRes.ok) { const e = await pushRes.json(); throw new Error(e.message || 'Push failed'); }
-    setStep(5, 'done');
+    setStep(6, 'done');
 
     document.getElementById('commitActions').innerHTML = `
       <div style="font-family:var(--font-mono);font-size:0.75rem;color:#2ecc71">
@@ -857,7 +883,7 @@ async function executeCommit() {
     errEl.textContent = '✕ ' + err.message;
     errEl.classList.add('show');
     document.getElementById('confirmCommitBtn').disabled = false;
-    ['dot1','dot2','dot3','dot4','dot5'].forEach(id => {
+    ['dot1','dot2','dot3','dot4','dot5','dot6'].forEach(id => {
       if (document.getElementById(id).classList.contains('running'))
         document.getElementById(id).className = 'dot err';
     });
@@ -936,7 +962,7 @@ async function loadProductList() {
           <div style="font-family:var(--font-head);font-size:1.1rem;letter-spacing:0.06em">${p.name}</div>
           <div style="font-family:var(--font-mono);font-size:0.6rem;color:var(--muted);margin-top:3px">${p.slug}</div>
         </div>
-        <button onclick="confirmDelete('${p.slug}','${p.name.replace(/'/g,"\\'")}')}"
+        <button onclick="confirmDelete('${p.slug}','${p.name.replace(/'/g,"\\'")}')""
           style="background:none;border:1px solid #8B0000;color:#B00000;font-family:var(--font-mono);font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;padding:8px 14px;cursor:pointer;transition:all 0.15s"
           onmouseover="this.style.background='#8B0000';this.style.color='#fff'"
           onmouseout="this.style.background='none';this.style.color='#B00000'">
@@ -953,7 +979,7 @@ function confirmDelete(slug, name) {
   deleteTargetSlug = slug;
   deleteTargetName = name;
   document.getElementById('delProductName').textContent = name;
-  ['ddot1','ddot2','ddot3','ddot4','ddot5'].forEach(id => document.getElementById(id).className = 'dot');
+  ['ddot1','ddot2','ddot3','ddot4','ddot5','ddot6'].forEach(id => document.getElementById(id).className = 'dot');
   document.getElementById('deleteErr').classList.remove('show');
   document.getElementById('confirmDelBtn').disabled = false;
   document.getElementById('deleteActions').innerHTML = `
@@ -1016,7 +1042,7 @@ async function executeDelete() {
     // Step 4: Remove product card HTML from catalog grid
     setDelStep(4, 'running');
     const cardMarker = `onclick="openProduct('${slug}')"`;
-    const cardMarkerIdx = source.indexOf(cardMarker, source.indexOf('products-grid'));
+    const cardMarkerIdx = source.indexOf(cardMarker, source.indexOf('id="products"'));
     if (cardMarkerIdx !== -1) {
       let cs = source.lastIndexOf('<div', cardMarkerIdx);
       let dc = 0, ce = cs;
@@ -1030,8 +1056,14 @@ async function executeDelete() {
     }
     setDelStep(4, 'done');
 
-    // Step 5: Push
+    // Step 5: Remove from HERO_PRODUCTS
     setDelStep(5, 'running');
+    const heroRegex = new RegExp(`,?\\s*\\{[^}]*id:\\s*'${slug}'[^}]*\\}`);
+    source = source.replace(heroRegex, '');
+    setDelStep(5, 'done');
+
+    // Step 6: Push
+    setDelStep(6, 'running');
     const b64 = btoa(unescape(encodeURIComponent(source)));
     const pushRes = await fetch(apiUrl, {
       method: 'PUT',
@@ -1039,7 +1071,7 @@ async function executeDelete() {
       body: JSON.stringify({ message: `feat: remove product — ${deleteTargetName}`, content: b64, sha, branch: 'main' })
     });
     if (!pushRes.ok) { const e = await pushRes.json(); throw new Error(e.message || 'Push failed'); }
-    setDelStep(5, 'done');
+    setDelStep(6, 'done');
 
     document.getElementById('deleteActions').innerHTML = `
       <div style="font-family:var(--font-mono);font-size:0.75rem;color:#2ecc71">
@@ -1051,7 +1083,7 @@ async function executeDelete() {
     errEl.textContent = '✕ ' + err.message;
     errEl.classList.add('show');
     document.getElementById('confirmDelBtn').disabled = false;
-    ['ddot1','ddot2','ddot3','ddot4','ddot5'].forEach(id => {
+    ['ddot1','ddot2','ddot3','ddot4','ddot5','ddot6'].forEach(id => {
       if (document.getElementById(id).classList.contains('running'))
         document.getElementById(id).className = 'dot err';
     });
