@@ -173,10 +173,14 @@ nav::before {
   font-weight: 700;
   width: 18px;
   height: 18px;
+  line-height: 18px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
+  text-align: center;
+  padding: 0;
+  flex-shrink: 0;
 }
 
 /* ── CART OVERLAY ── */
@@ -1630,7 +1634,7 @@ footer { background: var(--black); border-top: 1px solid rgba(200,200,200,0.06);
     <li><a href="javascript:void(0)" onclick="openContact(event)">Contact</a></li>
   </ul>
   <button class="nav-cta" onclick="openCart()">
-    🛒 Cart <span class="nav-cta-count" id="cart-count">0</span>
+    Cart <span class="nav-cta-count" id="cart-count">0</span>
   </button>
 </nav>
 
