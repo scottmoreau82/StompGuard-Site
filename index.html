@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>StompGuard ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ Pedal Protection</title>
+<title>StompGuard &mdash; Pedal Protection</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Share+Tech+Mono&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 <style>
@@ -42,7 +42,7 @@ body {
 
 footer { margin-top: auto; }
 
-/* ÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂ SCANLINE OVERLAY ÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂ */
+/* -- SCANLINE OVERLAY -- */
 body::before {
   content: '';
   position: fixed;
@@ -52,7 +52,7 @@ body::before {
   z-index: 9996;
 }
 
-/* ÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂ HEX GRID TEXTURE ÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂ */
+/* -- HEX GRID TEXTURE -- */
 body::after {
   content: '';
   position: fixed;
@@ -63,7 +63,7 @@ body::after {
   opacity: 1;
 }
 
-/* ÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂ NAV ÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂ */
+/* -- NAV -- */
 nav {
   position: fixed;
   top: 0; left: 0; right: 0;
@@ -182,7 +182,7 @@ nav::before {
   flex-shrink: 0;
 }
 
-/* ÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂ CART OVERLAY ÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂ */
+/* -- CART OVERLAY -- */
 .cart-overlay {
   position: fixed;
   inset: 0;
@@ -195,7 +195,7 @@ nav::before {
 
 .cart-overlay.open { opacity: 1; pointer-events: all; }
 
-/* ÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂ CART DRAWER ÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂ */
+/* -- CART DRAWER -- */
 .cart-drawer {
   position: fixed;
   top: 0; right: 0;
@@ -411,7 +411,7 @@ nav::before {
   .cart-drawer.open { transform: translateY(0); }
 }
 
-/* ÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂ INFO MODAL ÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂ */
+/* -- INFO MODAL -- */
 .info-overlay {
   position: fixed;
   inset: 0;
@@ -538,7 +538,7 @@ nav::before {
 }
 
 .info-section ul li::before {
-  content: 'ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ';
+  content: '&rarr;';
   position: absolute;
   left: 0;
   color: var(--red);
@@ -546,7 +546,7 @@ nav::before {
   top: 0.4rem;
 }
 
-/* ÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂ PRODUCT MODAL ÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂ */
+/* -- PRODUCT MODAL -- */
 .product-overlay {
   position: fixed;
   inset: 0;
@@ -722,7 +722,7 @@ nav::before {
 }
 
 .product-modal-spec::before {
-  content: 'ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ';
+  content: '&rarr;';
   color: var(--red);
   font-size: 0.4rem;
   margin-top: 0.35rem;
@@ -752,7 +752,7 @@ nav::before {
   .product-modal-info { border-left: none; border-top: 1px solid rgba(200,200,200,0.06); }
 }
 
-/* ÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂ CONTACT MODAL ÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂ */
+/* -- CONTACT MODAL -- */
 .contact-overlay {
   position: fixed;
   inset: 0;
@@ -905,7 +905,7 @@ nav::before {
   letter-spacing: 0.05em;
 }
 
-/* ÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂ HERO ÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂ */
+/* -- HERO -- */
 .hero {
   min-height: 100vh;
   display: grid;
@@ -968,7 +968,7 @@ nav::before {
 }
 
 .hero-eyebrow::before { content: ''; display: block; width: 30px; height: 1px; background: var(--red); }
-.hero-eyebrow::after { content: 'ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ '; font-size: 0.4rem; color: var(--red); }
+.hero-eyebrow::after { content: '&#9632;'; font-size: 0.4rem; color: var(--red); }
 
 .hero-title {
   font-family: var(--font-head);
@@ -1169,7 +1169,7 @@ nav::before {
 .hero-product-price { font-family: var(--font-mono); font-size: 1.4rem; color: var(--chrome); letter-spacing: 0.05em; }
 .hero-product-price span { font-size: 0.65rem; color: var(--muted); margin-right: 4px; letter-spacing: 0.2em; }
 
-/* ÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂ STATUS BAR ÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂ */
+/* -- STATUS BAR -- */
 .status-bar {
   background: var(--surface2);
   border-top: 1px solid rgba(200,200,200,0.05);
@@ -1200,7 +1200,7 @@ nav::before {
 
 .status-sep { color: var(--red); font-size: 0.5rem; }
 
-/* ÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂ SECTION STRUCTURE ÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂ */
+/* -- SECTION STRUCTURE -- */
 .section { padding: 7rem 5rem; }
 
 .section-eyebrow {
@@ -1227,7 +1227,7 @@ nav::before {
   margin-bottom: 1.2rem;
 }
 
-/* ÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂ PRODUCTS ÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂ */
+/* -- PRODUCTS -- */
 .products-section { background: var(--black); border-top: 1px solid rgba(200,200,200,0.04); }
 
 .products-header {
@@ -1335,7 +1335,7 @@ nav::before {
 
 .add-btn:hover { background: var(--red); border-color: var(--red); color: var(--chrome-hi); }
 
-/* ÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂ WHY STOMPGUARD ÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂ */
+/* -- WHY STOMPGUARD -- */
 .field-report {
   background: var(--surface);
   border-top: 1px solid rgba(200,200,200,0.04);
@@ -1437,7 +1437,7 @@ nav::before {
   margin-top: 4px;
 }
 
-/* ÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂ REVIEWS ÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂ */
+/* -- REVIEWS -- */
 .intel-section { background: var(--black); padding: 7rem 5rem; }
 
 .intel-header { text-align: center; margin-bottom: 3.5rem; }
@@ -1477,7 +1477,7 @@ nav::before {
 .intel-name { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--chrome-hi); }
 .intel-unit { font-size: 0.65rem; color: var(--muted); margin-top: 2px; font-family: var(--font-mono); }
 
-/* ÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂ BANNER ÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂ */
+/* -- BANNER -- */
 .mission-banner {
   background: var(--surface2);
   border-top: 1px solid rgba(200,200,200,0.06);
@@ -1546,7 +1546,7 @@ nav::before {
 
 .btn-mission:hover { background: var(--red-hi); transform: translateY(-2px); }
 
-/* ÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂ FOOTER ÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂ */
+/* -- FOOTER -- */
 footer { background: var(--black); border-top: 1px solid rgba(200,200,200,0.06); padding: 4rem 5rem 2rem; }
 
 .footer-top {
@@ -1581,7 +1581,7 @@ footer { background: var(--black); border-top: 1px solid rgba(200,200,200,0.06);
 
 .footer-bottom { display: flex; justify-content: space-between; align-items: center; font-family: var(--font-mono); font-size: 0.62rem; color: var(--muted); letter-spacing: 0.1em; opacity: 0.6; }
 
-/* ÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂ ANIMATIONS ÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂ */
+/* -- ANIMATIONS -- */
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(24px); }
   to { opacity: 1; transform: translateY(0); }
@@ -1593,7 +1593,7 @@ footer { background: var(--black); border-top: 1px solid rgba(200,200,200,0.06);
 .hero-ctas    { animation: fadeUp 0.5s 0.55s both; }
 .hero-product { animation: fadeUp 0.6s 0.3s both; }
 
-/* ÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂ RESPONSIVE ÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂ */
+/* -- RESPONSIVE -- */
 @media (max-width: 900px) {
   .hero { grid-template-columns: 1fr; }
   .hero::after { display: none; }
@@ -1654,7 +1654,7 @@ footer { background: var(--black); border-top: 1px solid rgba(200,200,200,0.06);
         Precision-cut acrylic protectors for your most valuable gear. Engineered for gigging musicians who protect their gear on stage and in the studio.
       </div>
       <div class="hero-ctas">
-        <a href="#products" class="btn-deploy">Shop Now ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ</a>
+        <a href="#products" class="btn-deploy">Shop Now &rarr;</a>
       </div>
     </div>
   </div>
@@ -1672,38 +1672,24 @@ footer { background: var(--black); border-top: 1px solid rgba(200,200,200,0.06);
         <div class="hero-product-price"><span>MSRP</span><span id="hero-product-price">$49.99</span></div>
       </div>
     </div>
-
-    <div class="product-card" onclick="openProduct('secondtest')">
-      <div class="product-card-img">
-        <img src="https://raw.githubusercontent.com/scottmoreau82/StompGuard-Site/refs/heads/main/images/products/secondtest/secondtest-1.png" alt="SecondTest"/>
-      </div>
-      <div class="product-card-body">
-        <div class="product-card-unit"></div>
-        <div class="product-card-name">SecondTest</div>
-        <div class="product-card-footer">
-          <span class="product-card-price">$29.95</span>
-          <a class="add-btn" onclick="addToCart(event,'secondtest','SecondTest',29.95)" href="#">Add to Cart</a>
-        </div>
-      </div>
-    </div>
   </div>
 </section>
 
 <!-- STATUS BAR -->
 <div class="status-bar">
   <div class="status-ticker">
-    <div class="status-item">US Based Operations <span class="status-sep">ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ</span></div>
-    <div class="status-item">Premium Acrylic Construction <span class="status-sep">ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ</span></div>
-    <div class="status-item">Precision Laser Cut <span class="status-sep">ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ</span></div>
-    <div class="status-item">Rapid Order Fulfillment <span class="status-sep">ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ</span></div>
-    <div class="status-item">Neural DSP Specialists <span class="status-sep">ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ</span></div>
-    <div class="status-item">Gig-Ready Protection <span class="status-sep">ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ</span></div>
-    <div class="status-item">US Based Operations <span class="status-sep">ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ</span></div>
-    <div class="status-item">Premium Acrylic Construction <span class="status-sep">ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ</span></div>
-    <div class="status-item">Precision Laser Cut <span class="status-sep">ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ</span></div>
-    <div class="status-item">Rapid Order Fulfillment <span class="status-sep">ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ</span></div>
-    <div class="status-item">Neural DSP Specialists <span class="status-sep">ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ</span></div>
-    <div class="status-item">Gig-Ready Protection <span class="status-sep">ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ</span></div>
+    <div class="status-item">US Based Operations <span class="status-sep">&rarr;</span></div>
+    <div class="status-item">Premium Acrylic Construction <span class="status-sep">&rarr;</span></div>
+    <div class="status-item">Precision Laser Cut <span class="status-sep">&rarr;</span></div>
+    <div class="status-item">Rapid Order Fulfillment <span class="status-sep">&rarr;</span></div>
+    <div class="status-item">Neural DSP Specialists <span class="status-sep">&rarr;</span></div>
+    <div class="status-item">Gig-Ready Protection <span class="status-sep">&rarr;</span></div>
+    <div class="status-item">US Based Operations <span class="status-sep">&rarr;</span></div>
+    <div class="status-item">Premium Acrylic Construction <span class="status-sep">&rarr;</span></div>
+    <div class="status-item">Precision Laser Cut <span class="status-sep">&rarr;</span></div>
+    <div class="status-item">Rapid Order Fulfillment <span class="status-sep">&rarr;</span></div>
+    <div class="status-item">Neural DSP Specialists <span class="status-sep">&rarr;</span></div>
+    <div class="status-item">Gig-Ready Protection <span class="status-sep">&rarr;</span></div>
   </div>
 </div>
 
@@ -1825,7 +1811,7 @@ footer { background: var(--black); border-top: 1px solid rgba(200,200,200,0.06);
   </div>
   <div class="intel-grid">
     <div class="intel-card">
-      <div class="intel-stars">ÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂ</div>
+      <div class="intel-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
       <p class="intel-quote">"Finally a protector that actually fits my Quad Cortex perfectly. No more worrying about accidental stomps wiping out my presets mid-set."</p>
       <div class="intel-source">
         <div class="intel-avatar">MR</div>
@@ -1836,7 +1822,7 @@ footer { background: var(--black); border-top: 1px solid rgba(200,200,200,0.06);
       </div>
     </div>
     <div class="intel-card">
-      <div class="intel-stars">ÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂ</div>
+      <div class="intel-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
       <p class="intel-quote">"The magnetic version is genius. Snaps on and off in seconds and the screen protection is crystal clear. Worth every penny for touring players."</p>
       <div class="intel-source">
         <div class="intel-avatar">JL</div>
@@ -1847,7 +1833,7 @@ footer { background: var(--black); border-top: 1px solid rgba(200,200,200,0.06);
       </div>
     </div>
     <div class="intel-card">
-      <div class="intel-stars">ÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂ</div>
+      <div class="intel-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
       <p class="intel-quote">"Super fast shipping and the build quality is excellent. Exactly what I needed to protect my Nano Cortex at the edge of my pedalboard."</p>
       <div class="intel-source">
         <div class="intel-avatar">DS</div>
@@ -1866,7 +1852,7 @@ footer { background: var(--black); border-top: 1px solid rgba(200,200,200,0.06);
     <h2 class="mission-title">Your Gear Deserves<br/>Protection.</h2>
     <p class="mission-sub">One accident can take your rig offline for good. Don't let it happen.</p>
   </div>
-  <a href="#products" class="btn-mission">Shop Protectors ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ</a>
+  <a href="#products" class="btn-mission">Shop Protectors &rarr;</a>
 </section>
 
 <!-- FOOTER -->
@@ -1908,7 +1894,7 @@ footer { background: var(--black); border-top: 1px solid rgba(200,200,200,0.06);
     </div>
   </div>
   <div class="footer-bottom">
-    <span>ÃÂÃÂÃÂÃÂ© 2026 StompGuard. All rights reserved.</span>
+    <span>&copy; 2026 StompGuard. All rights reserved.</span>
     <span style="font-family:var(--font-mono);font-size:0.6rem;color:var(--muted);opacity:0.4;">SG-v2.0</span>
   </div>
 </footer>
@@ -1920,11 +1906,11 @@ footer { background: var(--black); border-top: 1px solid rgba(200,200,200,0.06);
 <div class="cart-drawer" id="cart-drawer">
   <div class="cart-drawer-header">
     <div class="cart-drawer-title">Your Cart</div>
-    <button class="cart-close" onclick="closeCart()">ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ Close</button>
+    <button class="cart-close" onclick="closeCart()">&#10005; Close</button>
   </div>
   <div class="cart-items" id="cart-items">
     <div class="cart-empty">
-      <div class="cart-empty-icon">ÃÂÃÂ°ÃÂÃÂÃÂÃÂÃÂÃÂ</div>
+      <div class="cart-empty-icon">&#128722;</div>
       <div>Your cart is empty</div>
       <div style="font-size:0.6rem;opacity:0.5;">Add a product to get started</div>
     </div>
@@ -1934,7 +1920,7 @@ footer { background: var(--black); border-top: 1px solid rgba(200,200,200,0.06);
       <div class="cart-subtotal-label">Subtotal</div>
       <div class="cart-subtotal-amount" id="cart-subtotal">$0.00</div>
     </div>
-    <button class="btn-checkout" id="checkout-btn" onclick="checkout()" disabled>Proceed to Checkout ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ</button>
+    <button class="btn-checkout" id="checkout-btn" onclick="checkout()" disabled>Proceed to Checkout &rarr;</button>
     <div class="cart-note">Secure checkout powered by Stripe</div>
   </div>
 </div>
@@ -1944,7 +1930,7 @@ footer { background: var(--black); border-top: 1px solid rgba(200,200,200,0.06);
   <div class="product-modal" id="product-modal">
     <div class="product-modal-header">
       <div class="product-modal-title" id="product-modal-title"></div>
-      <button class="product-modal-close" onclick="closeProduct()">ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ Close</button>
+      <button class="product-modal-close" onclick="closeProduct()">&#10005; Close</button>
     </div>
     <div class="product-modal-body">
       <div class="product-modal-images">
@@ -1969,7 +1955,7 @@ footer { background: var(--black); border-top: 1px solid rgba(200,200,200,0.06);
   <div class="info-modal" id="info-modal">
     <div class="info-modal-header">
       <div class="info-modal-title" id="info-modal-title">Info</div>
-      <button class="info-close" onclick="closeInfo()">ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ Close</button>
+      <button class="info-close" onclick="closeInfo()">&#10005; Close</button>
     </div>
     <div class="info-modal-body" id="info-modal-body"></div>
   </div>
@@ -1980,7 +1966,7 @@ footer { background: var(--black); border-top: 1px solid rgba(200,200,200,0.06);
   <div class="contact-modal" id="contact-modal">
     <div class="contact-modal-header">
       <div class="contact-modal-title">Contact Us</div>
-      <button class="contact-close" onclick="closeContact()">ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ Close</button>
+      <button class="contact-close" onclick="closeContact()">&#10005; Close</button>
     </div>
     <div class="contact-form" id="contact-form">
       <div class="contact-field">
@@ -2010,10 +1996,10 @@ footer { background: var(--black); border-top: 1px solid rgba(200,200,200,0.06);
         <label class="contact-label">Message</label>
         <textarea class="contact-textarea" id="contact-message" placeholder="How can we help?"></textarea>
       </div>
-      <button class="btn-send" id="contact-send" onclick="sendContact()">Send Message ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ</button>
+      <button class="btn-send" id="contact-send" onclick="sendContact()">Send Message &rarr;</button>
     </div>
     <div class="contact-success" id="contact-success">
-      <div class="contact-success-icon">ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ</div>
+      <div class="contact-success-icon">&#10003;</div>
       <div class="contact-success-title">Message Sent!</div>
       <div class="contact-success-msg">Thanks for reaching out. We'll get back to you within 1-2 business days.</div>
     </div>
@@ -2071,7 +2057,7 @@ function renderCart() {
   let total = 0, count = 0;
 
   if (keys.length === 0) {
-    itemsEl.innerHTML = '<div class="cart-empty"><div class="cart-empty-icon">ÃÂÃÂ°ÃÂÃÂÃÂÃÂÃÂÃÂ</div><div>Your cart is empty</div><div style="font-size:0.6rem;opacity:0.5;">Add a product to get started</div></div>';
+    itemsEl.innerHTML = '<div class="cart-empty"><div class="cart-empty-icon">&#128722;</div><div>Your cart is empty</div><div style="font-size:0.6rem;opacity:0.5;">Add a product to get started</div></div>';
     subtotalEl.textContent = '$0.00';
     countEl.textContent = '0';
     checkoutBtn.disabled = true;
@@ -2083,7 +2069,7 @@ function renderCart() {
     const item = cart[id];
     total += item.price * item.qty;
     count += item.qty;
-    html += `<div class="cart-item"><div class="cart-item-info"><div class="cart-item-name">${item.name}</div><div class="cart-item-price">$${item.price.toFixed(2)} each</div><div class="cart-item-qty"><button class="qty-btn" onclick="updateQty('${id}',-1)">ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ</button><span class="qty-num">${item.qty}</span><button class="qty-btn" onclick="updateQty('${id}',1)">+</button><button class="cart-item-remove" onclick="removeItem('${id}')">Remove</button></div></div></div>`;
+    html += `<div class="cart-item"><div class="cart-item-info"><div class="cart-item-name">${item.name}</div><div class="cart-item-price">$${item.price.toFixed(2)} each</div><div class="cart-item-qty"><button class="qty-btn" onclick="updateQty('${id}',-1)">&minus;</button><span class="qty-num">${item.qty}</span><button class="qty-btn" onclick="updateQty('${id}',1)">+</button><button class="cart-item-remove" onclick="removeItem('${id}')">Remove</button></div></div></div>`;
   });
 
   itemsEl.innerHTML = html;
@@ -2105,11 +2091,11 @@ async function checkout() {
     });
     const data = await response.json();
     if (data.url) { window.location.href = data.url; }
-    else { alert('Checkout error. Please try again.'); checkoutBtn.disabled = false; checkoutBtn.textContent = 'Proceed to Checkout ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ'; }
+    else { alert('Checkout error. Please try again.'); checkoutBtn.disabled = false; checkoutBtn.textContent = 'Proceed to Checkout &rarr;'; }
   } catch (err) {
     alert('Checkout error. Please try again.');
     checkoutBtn.disabled = false;
-    checkoutBtn.textContent = 'Proceed to Checkout ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ';
+    checkoutBtn.textContent = 'Proceed to Checkout &rarr;';
   }
 }
 
@@ -2127,14 +2113,14 @@ function openModal(type) {
     shipping: `
       <div class="info-section">
         <div class="info-section-title">Processing Time</div>
-        <p>All orders are processed within 1ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ3 business days. Orders placed on weekends or holidays will be processed the next business day.</p>
+        <p>All orders are processed within 1&ndash;3 business days. Orders placed on weekends or holidays will be processed the next business day.</p>
       </div>
       <div class="info-section">
         <div class="info-section-title">Shipping Methods</div>
         <ul>
-          <li>USPS First Class (3ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ7 business days) ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ most orders</li>
-          <li>USPS Priority Mail (2ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ3 business days) ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ available at checkout</li>
-          <li>UPS Ground ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ available for larger orders</li>
+          <li>USPS First Class (3&ndash;7 business days) &mdash; most orders</li>
+          <li>USPS Priority Mail (2&ndash;3 business days) &mdash; available at checkout</li>
+          <li>UPS Ground &mdash; available for larger orders</li>
         </ul>
       </div>
       <div class="info-section">
@@ -2161,7 +2147,7 @@ function openModal(type) {
           <li>Contact us via the Contact form with your order number</li>
           <li>We'll provide a return shipping label</li>
           <li>Pack the item securely and drop off at any USPS location</li>
-          <li>Refund processed within 5ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ7 business days of receipt</li>
+          <li>Refund processed within 5&ndash;7 business days of receipt</li>
         </ul>
       </div>
       <div class="info-section">
@@ -2176,7 +2162,7 @@ function openModal(type) {
     faq: `
       <div class="info-section">
         <div class="info-section-title">Will it fit my exact pedal model?</div>
-        <p>Yes. Each StompGuard is precision-cut specifically for your pedal model. Make sure you're selecting the correct product for your device ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ Quad Cortex, Quad Cortex Mini, Nano Cortex, or Digitech Drop.</p>
+        <p>Yes. Each StompGuard is precision-cut specifically for your pedal model. Make sure you're selecting the correct product for your device &mdash; Quad Cortex, Quad Cortex Mini, Nano Cortex, or Digitech Drop.</p>
       </div>
       <div class="info-section">
         <div class="info-section-title">Does it interfere with knobs or switches?</div>
@@ -2184,7 +2170,7 @@ function openModal(type) {
       </div>
       <div class="info-section">
         <div class="info-section-title">How does the magnetic version attach?</div>
-        <p>The magnetic version uses rare earth magnets embedded in the acrylic that align with metal contact points on the pedal. No adhesives, no tools ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ snaps on and off in seconds.</p>
+        <p>The magnetic version uses rare earth magnets embedded in the acrylic that align with metal contact points on the pedal. No adhesives, no tools &mdash; snaps on and off in seconds.</p>
       </div>
       <div class="info-section">
         <div class="info-section-title">Will it scratch my pedal?</div>
@@ -2206,7 +2192,7 @@ function openModal(type) {
       </div>
       <div class="info-section">
         <div class="info-section-title">What We Do</div>
-        <p>We design and manufacture precision-cut acrylic protectors for high-end guitar effects processors. Every StompGuard is cut to exact specifications for your specific pedal model ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ no generic solutions, no compromises.</p>
+        <p>We design and manufacture precision-cut acrylic protectors for high-end guitar effects processors. Every StompGuard is cut to exact specifications for your specific pedal model &mdash; no generic solutions, no compromises.</p>
       </div>
       <div class="info-section">
         <div class="info-section-title">Made in the USA</div>
@@ -2214,7 +2200,7 @@ function openModal(type) {
       </div>
       <div class="info-section">
         <div class="info-section-title">Built for Players</div>
-        <p>We're musicians first. Every decision we make ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ from materials to fit to packaging ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ is made with the gigging musician in mind. Your gear is your livelihood. We take that seriously.</p>
+        <p>We're musicians first. Every decision we make &mdash; from materials to fit to packaging &mdash; is made with the gigging musician in mind. Your gear is your livelihood. We take that seriously.</p>
       </div>`,
 
     privacy: `
@@ -2286,7 +2272,7 @@ function closeInfoOnOverlay(e) {
   if (e.target === document.getElementById('info-overlay')) closeInfo();
 }
 
-// ÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂ PRODUCT DATA ÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂ
+// -- PRODUCT DATA --
 const PRODUCTS = {
   'quad-cortex': {
     sku: 'QC-001',
@@ -2458,7 +2444,7 @@ function sendContact() {
     document.getElementById('contact-form').style.display = 'none';
     document.getElementById('contact-success').style.display = 'flex';
     btn.disabled = false;
-    btn.textContent = 'Send Message ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ';
+    btn.textContent = 'Send Message &rarr;';
   }, 500);
 }
 </script>
