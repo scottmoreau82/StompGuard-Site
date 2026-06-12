@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>StompGuard DXF Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#101116;--panel:#16181f;--panel2:#1c1f28;--ink:#e8edf1;--dim:#6a7480;--acc:#bfe0d6;--red:#B81D24;--line:#252833}
 *{margin:0;padding:0;box-sizing:border-box}
@@ -54,6 +55,7 @@ select{background:#101116;border:1px solid var(--line);color:var(--ink);border-r
 .checks label{display:flex;gap:8px;align-items:center;color:var(--ink);cursor:pointer}
 #warnings{font-size:10.5px;color:#c9a24a;line-height:1.5}
 .empty{color:var(--dim);font-size:11.5px;font-style:italic}
+#bpCanvas{position:absolute;inset:0;width:100%;height:100%;display:none;z-index:2;background:#080808}
 </style>
 </head>
 <body>
@@ -86,6 +88,30 @@ select{background:#101116;border:1px solid var(--line);color:var(--ink);border-r
     <div id="bendList"></div>
   </div>
 
+  <div class="card" id="bpCard" style="display:none">
+    <h2>Blueprint</h2>
+    <div class="row" style="margin-bottom:8px"><label>Part</label><select id="bpPartSel" style="flex:1"></select></div>
+    <div class="row" style="margin-bottom:8px"><input type="text" id="bpTitle" placeholder="Title (defaults to part name)"></div>
+    <div class="row" style="margin-bottom:8px">
+      <label>Part no</label><input type="text" id="bpNo" value="SG-001" style="width:auto;flex:1">
+      <label>Rev</label><input type="text" id="bpRev" value="A" style="width:44px">
+    </div>
+    <div class="row" style="margin-bottom:10px"><label>Accent</label>
+      <select id="bpAccent" style="flex:1"><option value="cyan">Blueprint cyan</option><option value="red">StompGuard red</option><option value="chrome">Chrome</option></select>
+    </div>
+    <div class="checks">
+      <label><input type="checkbox" id="bpGrid" checked> Grid</label>
+      <label><input type="checkbox" id="bpDims" checked> Dimensions</label>
+      <label><input type="checkbox" id="bpLegend" checked> Cutout legend</label>
+      <label><input type="checkbox" id="bpWM"> SG watermark</label>
+    </div>
+    <div class="row" style="margin-top:10px"><label>Material</label><input type="text" id="bpMat" value="OPTICAL-GRADE ACRYLIC" style="width:auto;flex:1"></div>
+    <div class="row" style="margin-top:6px"><label>Process</label><input type="text" id="bpProc" value="CNC PRECISION CUT" style="width:auto;flex:1"></div>
+    <div class="row" style="margin-top:6px"><label>Finish</label><input type="text" id="bpFin" value="POLISHED CLEAR" style="width:auto;flex:1"></div>
+    <div class="row" style="margin-top:6px"><label>Drawn</label><input type="text" id="bpDrawn" value="STOMPGUARD" style="width:auto;flex:1"></div>
+    <button class="primary" id="bpExportBtn" style="margin-top:12px">⬇ Export blueprint PNG</button>
+  </div>
+
   <div class="card" id="exportCard" style="display:none">
     <h2>Export viewer</h2>
     <div class="row" style="margin-bottom:8px"><input type="text" id="expTitle" placeholder="Title (e.g. Quad Cortex · Protector)"></div>
@@ -112,11 +138,13 @@ select{background:#101116;border:1px solid var(--line);color:var(--ink);border-r
 
 <div id="main">
   <canvas id="stage"></canvas>
+  <canvas id="bpCanvas"></canvas>
   <div class="hud topbar">
     <div class="modebar">
       <div class="seg">
         <button id="editBtn" class="on">Edit (flat)</button>
         <button id="prevBtn">Preview</button>
+        <button id="bpBtn">Blueprint</button>
       </div>
       <div class="seg" id="layoutSeg" style="display:none">
         <button data-layout="assembled" class="on">Assembled</button>
@@ -124,7 +152,11 @@ select{background:#101116;border:1px solid var(--line);color:var(--ink);border-r
         <button data-layout="side">Side by side</button>
       </div>
     </div>
-    <div class="seg"><button id="spinTool">Auto-rotate</button></div>
+    <div class="modebar">
+      <div class="seg" id="camSeg"><button data-cam="iso" class="on">Iso</button><button data-cam="top">Top</button><button data-cam="front">Front</button><button data-cam="side">Side</button></div>
+      <div class="seg"><button id="shotBtn">📸 PNG</button></div>
+      <div class="seg"><button id="spinTool">Auto-rotate</button></div>
+    </div>
   </div>
   <div id="placeHint">Click on the selected part to place the bend line</div>
   <div id="status"></div>
@@ -716,7 +748,8 @@ function loadFile(f){
       parts.forEach(p=>p.bends=[]);
       rebuild();
       drop.innerHTML='✓ '+f.name+'<br><span style="font-size:10px">drop another to replace</span>';
-      $('partsCard').style.display=$('exportCard').style.display='block';
+      $('partsCard').style.display=$('exportCard').style.display=$('bpCard').style.display='block';
+      bpFillPartSel();
       selectPart(0);
     }catch(err){ $('warnings').textContent='⚠ Parse error: '+err.message; }
   };
@@ -892,7 +925,11 @@ function setMode(m){
   mode=m;
   $('editBtn').classList.toggle('on',m==='edit');
   $('prevBtn').classList.toggle('on',m==='preview');
+  $('bpBtn').classList.toggle('on',m==='blueprint');
   $('layoutSeg').style.display=(m==='preview'&&parts.length>1)?'flex':'none';
+  $('bpCanvas').style.display=(m==='blueprint')?'block':'none';
+  $('camSeg').style.display=(m==='blueprint')?'none':'flex';
+  if(m==='blueprint')drawBlueprint();
   refreshAll();
 }
 $('editBtn').addEventListener('click',()=>setMode('edit'));
@@ -1023,6 +1060,208 @@ dimsHtml+'\n<div class="hud ctrl">'+modesHtml+spinHtml+'</div>\n'+
   a.click();
   setTimeout(()=>URL.revokeObjectURL(a.href),5000);
 });
+
+// ==================== BLUEPRINT MODE + SCREENSHOTS ====================
+const bpCanvas=$('bpCanvas');
+const ACCENTS={cyan:'#00B4FF',red:'#B00000',chrome:'#C8C8C8'};
+const CAMS={iso:[-0.42,0.25],top:[0.785,0],front:[-0.785,0],side:[-0.785,Math.PI/2]};
+let currentCam='iso';
+
+function dl(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),4000);}
+function slug(s){return (s||'blueprint').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||'blueprint';}
+
+// ---- camera presets ----
+document.querySelectorAll('#camSeg [data-cam]').forEach(b=>b.addEventListener('click',()=>{
+  currentCam=b.dataset.cam;const c=CAMS[currentCam];rotX=c[0];rotZ=c[1];
+  document.querySelectorAll('#camSeg [data-cam]').forEach(x=>x.classList.toggle('on',x===b));
+}));
+
+// ---- screenshot button (3D views + blueprint) ----
+$('shotBtn').addEventListener('click',()=>{
+  if(mode==='blueprint'){bpExport();return;}
+  if(!parts.length)return;
+  const r=$('main').getBoundingClientRect();const pr=renderer.getPixelRatio();
+  renderer.setPixelRatio(1);renderer.setSize(r.width*2,r.height*2,false);
+  camera.aspect=r.width/r.height;camera.updateProjectionMatrix();
+  renderer.render(scene,camera);
+  canvas.toBlob(b=>{
+    dl(b,'stompguard-'+mode+'-'+currentCam+'.png');
+    renderer.setPixelRatio(pr);renderer.setSize(r.width,r.height,false);
+    camera.aspect=r.width/r.height;camera.updateProjectionMatrix();
+    renderer.render(scene,camera);
+  },'image/png');
+});
+
+// ---- blueprint UI ----
+$('bpBtn').addEventListener('click',()=>{if(parts.length)setMode('blueprint');});
+function bpFillPartSel(){
+  const sel=$('bpPartSel');sel.innerHTML='';
+  parts.forEach((p,i)=>{const o=document.createElement('option');o.value=i;o.textContent=p.name;sel.appendChild(o);});
+}
+['bpPartSel','bpTitle','bpNo','bpRev','bpAccent','bpGrid','bpDims','bpLegend','bpWM','bpMat','bpProc','bpFin','bpDrawn'].forEach(id=>{
+  const el=$(id);
+  el.addEventListener('input',()=>{if(mode==='blueprint')drawBlueprint();});
+  el.addEventListener('change',()=>{if(mode==='blueprint')drawBlueprint();});
+});
+$('bpExportBtn').addEventListener('click',()=>{if(parts.length)bpExport();});
+addEventListener('resize',()=>{if(mode==='blueprint')drawBlueprint();});
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{if(mode==='blueprint')drawBlueprint();});
+const __ra=refreshAll;refreshAll=function(){__ra();if(mode==='blueprint')drawBlueprint();};
+
+// ---- live canvas draw ----
+function drawBlueprint(){
+  const r=$('main').getBoundingClientRect();
+  const dpr=Math.min(devicePixelRatio||1,2);
+  bpCanvas.width=Math.round(r.width*dpr);bpCanvas.height=Math.round(r.height*dpr);
+  const ctx=bpCanvas.getContext('2d');
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  renderBlueprint(ctx,r.width,r.height);
+}
+
+// ---- hi-res export ----
+function bpExport(){
+  const r=bpCanvas.getBoundingClientRect();
+  const W=1920,H=Math.round(W*(r.height/Math.max(r.width,1)))||1280;
+  const off=document.createElement('canvas');off.width=W;off.height=H;
+  renderBlueprint(off.getContext('2d'),W,H);
+  const p=parts[bpIdx()];
+  off.toBlob(b=>dl(b,slug($('bpTitle').value||(p&&p.name))+'-blueprint.png'),'image/png');
+}
+function bpIdx(){return Math.max(0,Math.min(parseInt($('bpPartSel').value)||0,parts.length-1));}
+
+// ---- pure renderer (shared by live + export) ----
+function renderBlueprint(ctx,W,H){
+  ctx.fillStyle='#080808';ctx.fillRect(0,0,W,H);
+  const U=W/1600;
+  const mono='"Share Tech Mono",ui-monospace,Menlo,monospace';
+  if(!parts.length){
+    ctx.fillStyle='rgba(255,255,255,0.25)';ctx.font=(14*U)+'px '+mono;ctx.textAlign='center';
+    ctx.fillText('LOAD A DXF TO GENERATE A BLUEPRINT',W/2,H/2);return;
+  }
+  const p=parts[bpIdx()];
+  const acc=ACCENTS[$('bpAccent').value]||ACCENTS.cyan;
+  const ar=parseInt(acc.slice(1,3),16),ag=parseInt(acc.slice(3,5),16),ab=parseInt(acc.slice(5,7),16);
+  const rgba=a=>'rgba('+ar+','+ag+','+ab+','+a+')';
+  const thick=parseFloat($('thick').value)||3;
+  const showLeg=$('bpLegend').checked&&p.holes.length>0;
+
+  // grid
+  if($('bpGrid').checked){
+    ctx.lineWidth=1;
+    ctx.strokeStyle=rgba(0.05);
+    for(let x=0;x<W;x+=20*U){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+    for(let y=0;y<H;y+=20*U){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+    ctx.strokeStyle=rgba(0.10);
+    for(let x=0;x<W;x+=100*U){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+    for(let y=0;y<H;y+=100*U){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+  }
+
+  // watermark
+  if($('bpWM').checked){
+    ctx.fillStyle='rgba(255,255,255,0.022)';
+    ctx.font='700 '+(H*0.55)+'px '+mono;ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText('SG',W/2,H/2);ctx.textBaseline='alphabetic';
+  }
+
+  // header
+  ctx.textAlign='left';
+  ctx.fillStyle=acc;ctx.font='700 '+(13*U)+'px '+mono;
+  ctx.fillText('STOMPGUARD INDUSTRIES',24*U,34*U);
+  ctx.fillStyle='rgba(255,255,255,0.45)';ctx.font=(10*U)+'px '+mono;
+  ctx.fillText('PRECISION PROTECTION SYSTEMS',24*U,50*U);
+  ctx.fillStyle='#F0F0F0';ctx.font=(24*U)+'px '+mono;
+  ctx.fillText((($('bpTitle').value||p.name)+'').toUpperCase(),24*U,82*U);
+  ctx.textAlign='right';
+  ctx.fillStyle='#cfd6da';ctx.font=(11*U)+'px '+mono;
+  ctx.fillText('PART NO '+($('bpNo').value||'\u2014')+'  //  REV '+($('bpRev').value||'A'),W-24*U,34*U);
+  ctx.fillStyle='rgba(255,255,255,0.5)';
+  ctx.fillText('UNITS: mm  //  t = '+thick+' mm',W-24*U,50*U);
+  ctx.strokeStyle=rgba(0.35);ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(24*U,96*U);ctx.lineTo(W-24*U,96*U);ctx.stroke();
+
+  // layout
+  const bw=p.bbox.maxX-p.bbox.minX,bh=p.bbox.maxY-p.bbox.minY;
+  const ML=90*U,MR=showLeg?190*U:80*U,MT=124*U,MB=140*U;
+  const s=Math.min((W-ML-MR)/bw,(H-MT-MB)/bh);
+  const ox=ML+((W-ML-MR)-bw*s)/2, oy=MT+((H-MT-MB)-bh*s)/2;
+  const X=x=>ox+(x-p.bbox.minX)*s, Y=y=>oy+(p.bbox.maxY-y)*s;
+  function tr(pts){ctx.beginPath();ctx.moveTo(X(pts[0][0]),Y(pts[0][1]));for(let i=1;i<pts.length;i++)ctx.lineTo(X(pts[i][0]),Y(pts[i][1]));ctx.closePath();}
+
+  // outer with glow
+  ctx.save();
+  ctx.shadowColor=acc;ctx.shadowBlur=9*U;
+  tr(p.outer);
+  ctx.fillStyle=rgba(0.04);ctx.fill();
+  ctx.strokeStyle=acc;ctx.lineWidth=2*U;ctx.stroke();
+  ctx.restore();
+
+  // holes
+  p.holes.forEach(h=>{
+    if(h.circle){
+      const cx=X(h.circle.cx),cy=Y(h.circle.cy),rr=h.circle.r*s;
+      ctx.strokeStyle=rgba(0.92);ctx.lineWidth=1.4*U;
+      ctx.beginPath();ctx.arc(cx,cy,rr,0,2*Math.PI);ctx.stroke();
+      const arm=Math.min(rr*0.6,7*U);
+      ctx.strokeStyle=rgba(0.45);ctx.lineWidth=1;
+      ctx.beginPath();ctx.moveTo(cx-arm,cy);ctx.lineTo(cx+arm,cy);ctx.moveTo(cx,cy-arm);ctx.lineTo(cx,cy+arm);ctx.stroke();
+    } else {
+      ctx.strokeStyle=rgba(0.85);ctx.lineWidth=1.2*U;
+      tr(h.pts);ctx.stroke();
+    }
+  });
+
+  // dimensions
+  if($('bpDims').checked){
+    const x0=X(p.bbox.minX),x1=X(p.bbox.maxX),y0=Y(p.bbox.maxY),y1=Y(p.bbox.minY);
+    ctx.strokeStyle=rgba(0.7);ctx.fillStyle=acc;ctx.lineWidth=1;ctx.font=(12*U)+'px '+mono;
+    // width below
+    const yd=y1+26*U;
+    ctx.beginPath();
+    ctx.moveTo(x0,y1+6*U);ctx.lineTo(x0,yd+5*U);
+    ctx.moveTo(x1,y1+6*U);ctx.lineTo(x1,yd+5*U);
+    ctx.moveTo(x0,yd);ctx.lineTo(x1,yd);
+    ctx.stroke();
+    ctx.textAlign='center';
+    ctx.fillText(bw.toFixed(2)+' mm',(x0+x1)/2,yd+20*U);
+    // height left
+    const xd=x0-26*U;
+    ctx.beginPath();
+    ctx.moveTo(x0-6*U,y0);ctx.lineTo(xd-5*U,y0);
+    ctx.moveTo(x0-6*U,y1);ctx.lineTo(xd-5*U,y1);
+    ctx.moveTo(xd,y0);ctx.lineTo(xd,y1);
+    ctx.stroke();
+    ctx.save();ctx.translate(xd-12*U,(y0+y1)/2);ctx.rotate(-Math.PI/2);
+    ctx.textAlign='center';ctx.fillText(bh.toFixed(2)+' mm',0,0);ctx.restore();
+  }
+
+  // cutout legend
+  if(showLeg){
+    const groups={};let shapes=0;
+    p.holes.forEach(h=>{if(h.circle){const k=(h.circle.r*2).toFixed(2);groups[k]=(groups[k]||0)+1;}else shapes++;});
+    const lines=Object.keys(groups).sort((a,b)=>parseFloat(b)-parseFloat(a)).map(k=>'\u00D8 '+k+' mm \u00D7 '+groups[k]);
+    if(shapes)lines.push('PROFILE CUT \u00D7 '+shapes);
+    ctx.textAlign='right';ctx.font=(11*U)+'px '+mono;
+    ctx.fillStyle=rgba(0.55);ctx.fillText('CUTOUTS',W-24*U,124*U);
+    ctx.fillStyle='#cfd6da';
+    lines.slice(0,10).forEach((t,i)=>ctx.fillText(t,W-24*U,(142+i*17)*U));
+  }
+
+  // title block
+  ctx.strokeStyle=rgba(0.35);ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(24*U,H-72*U);ctx.lineTo(W-24*U,H-72*U);ctx.stroke();
+  const cols=[[24*U,'MATERIAL',$('bpMat').value],[W*0.30,'PROCESS',$('bpProc').value],[W*0.55,'FINISH',$('bpFin').value],[W*0.78,'DRAWN',$('bpDrawn').value]];
+  ctx.textAlign='left';
+  cols.forEach(c=>{
+    ctx.fillStyle='rgba(255,255,255,0.4)';ctx.font=(9.5*U)+'px '+mono;
+    ctx.fillText(c[1],c[0],H-50*U);
+    ctx.fillStyle='#F0F0F0';ctx.font=(12*U)+'px '+mono;
+    ctx.fillText((c[2]||'\u2014').toUpperCase(),c[0],H-30*U);
+  });
+  ctx.textAlign='right';ctx.fillStyle='rgba(255,255,255,0.32)';ctx.font=(9.5*U)+'px '+mono;
+  ctx.fillText('STOMPGUARD.COM',W-24*U,H-30*U);
+}
+// ==================== /BLUEPRINT ====================
+
 })();
 
 </script>
