@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StompGuard // New Product</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Share+Tech+Mono&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --black:     #080808;
+  --surface:   #111111;
+  --surface2:  #1a1a1a;
+  --gunmetal:  #2a2a2a;
+  --chrome:    #C8C8C8;
+  --chrome-hi: #E8E8E8;
+  --chrome-lo: #888888;
+  --red:       #8B0000;
+  --red-hi:    #B00000;
+  --text:      #F0F0F0;
+  --muted:     #777777;
+  --accent:    #8B0000;
+  --font-head: 'Bebas Neue', sans-serif;
+  --font-mono: 'Share Tech Mono', monospace;
+  --font-body: 'Inter', sans-serif;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; background: var(--black); color: var(--text); font-family: var(--font-body); }
+
+/* ── GATE ── */
+#gate {
+  position: fixed; inset: 0; background: var(--black);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 1000; flex-direction: column; gap: 32px;
+}
+.gate-logo { font-family: var(--font-head); font-size: 2.4rem; letter-spacing: 0.15em; color: var(--text); }
+.gate-logo span { color: var(--red); }
+.gate-box {
+  background: var(--surface); border: 1px solid var(--gunmetal);
+  padding: 36px 40px; width: 360px;
+  clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 14px 100%, 0 calc(100% - 14px));
+  display: flex; flex-direction: column; gap: 16px;
+}
+.gate-box h2 { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.2em; color: var(--muted); text-transform: uppercase; }
+.gate-input {
+  background: var(--black); border: 1px solid var(--gunmetal); color: var(--text);
+  font-family: var(--font-mono); font-size: 0.85rem; padding: 10px 14px;
+  width: 100%; outline: none; transition: border-color 0.2s;
+}
+.gate-input:focus { border-color: var(--red); }
+.gate-input.error { border-color: #ff4444; }
+.gate-err { font-family: var(--font-mono); font-size: 0.7rem; color: #ff4444; display: none; }
+.gate-err.show { display: block; }
+.gate-btn {
+  background: var(--red); color: var(--chrome-hi); border: 1px solid var(--red-hi);
+  font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.2em; text-transform: uppercase;
+  padding: 12px; cursor: pointer; transition: background 0.2s; width: 100%;
+  clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+}
+.gate-btn:hover { background: var(--red-hi); }
+.gate-divider { border: none; border-top: 1px solid var(--gunmetal); }
+.gate-reset { font-family: var(--font-mono); font-size: 0.65rem; color: var(--muted); text-align: center; cursor: pointer; }
+.gate-reset:hover { color: var(--chrome); }
+
+/* ── RESET MODAL ── */
+#resetModal {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.85);
+  display: none; align-items: center; justify-content: center; z-index: 2000;
+}
+#resetModal.open { display: flex; }
+.reset-box {
+  background: var(--surface); border: 1px solid var(--gunmetal);
+  padding: 32px; width: 340px; display: flex; flex-direction: column; gap: 14px;
+  clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+}
+.reset-box h3 { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.15em; color: var(--muted); text-transform: uppercase; }
+
+/* ── APP ── */
+#app { display: none; min-height: 100vh; }
+#app.visible { display: block; }
+
+/* ── TOPBAR ── */
+.topbar {
+  background: var(--surface); border-bottom: 1px solid var(--gunmetal);
+  padding: 14px 28px; display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 100;
+}
+.topbar-logo { font-family: var(--font-head); font-size: 1.4rem; letter-spacing: 0.12em; }
+.topbar-logo span { color: var(--red); }
+.topbar-status { font-family: var(--font-mono); font-size: 0.65rem; color: var(--muted); display: flex; align-items: center; gap: 10px; }
+.status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--muted); }
+.status-dot.ok { background: #2ecc71; }
+.status-dot.err { background: #e74c3c; }
+
+/* ── LAYOUT ── */
+.layout { display: grid; grid-template-columns: 1fr 420px; gap: 0; min-height: calc(100vh - 57px); }
+.form-col { padding: 32px; border-right: 1px solid var(--gunmetal); overflow-y: auto; }
+.preview-col { padding: 32px; background: var(--surface); position: sticky; top: 57px; height: calc(100vh - 57px); overflow-y: auto; }
+
+/* ── SECTIONS ── */
+.section { margin-bottom: 32px; }
+.section-label {
+  font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 0.2em;
+  color: var(--red); text-transform: uppercase; margin-bottom: 14px;
+  display: flex; align-items: center; gap: 8px;
+}
+.section-label::after { content: ''; flex: 1; height: 1px; background: var(--gunmetal); }
+
+/* ── FORM FIELDS ── */
+.field { margin-bottom: 16px; }
+.field label { display: block; font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 0.12em; color: var(--muted); text-transform: uppercase; margin-bottom: 6px; }
+.field input, .field textarea, .field select {
+  width: 100%; background: var(--surface2); border: 1px solid var(--gunmetal); color: var(--text);
+  font-family: var(--font-body); font-size: 0.85rem; padding: 10px 12px; outline: none;
+  transition: border-color 0.2s; appearance: none;
+}
+.field input:focus, .field textarea:focus, .field select:focus { border-color: var(--red); }
+.field textarea { resize: vertical; min-height: 80px; }
+.field select { cursor: pointer; }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.field-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+.field-hint { font-family: var(--font-mono); font-size: 0.6rem; color: var(--muted); margin-top: 4px; }
+
+/* ── SPECS BUILDER ── */
+#specList { display: flex; flex-direction: column; gap: 6px; margin-bottom: 8px; }
+.spec-item { display: flex; gap: 8px; align-items: center; }
+.spec-item input {
+  flex: 1; background: var(--surface2); border: 1px solid var(--gunmetal); color: var(--text);
+  font-family: var(--font-body); font-size: 0.82rem; padding: 8px 10px; outline: none;
+}
+.spec-item input:focus { border-color: var(--red); }
+.spec-del { background: none; border: 1px solid var(--gunmetal); color: var(--muted); cursor: pointer; padding: 8px 10px; font-size: 0.8rem; transition: all 0.15s; flex-shrink: 0; }
+.spec-del:hover { border-color: #e74c3c; color: #e74c3c; }
+.btn-ghost { background: none; border: 1px solid var(--gunmetal); color: var(--chrome-lo); font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase; padding: 8px 14px; cursor: pointer; transition: all 0.15s; }
+.btn-ghost:hover { border-color: var(--chrome-lo); color: var(--chrome); }
+
+/* ── IMAGE UPLOAD ── */
+#imageDropzone {
+  border: 2px dashed var(--gunmetal); padding: 28px; text-align: center;
+  cursor: pointer; transition: border-color 0.2s; margin-bottom: 10px;
+}
+#imageDropzone:hover, #imageDropzone.over { border-color: var(--red); }
+#imageDropzone p { font-family: var(--font-mono); font-size: 0.7rem; color: var(--muted); }
+#imageDropzone span { color: var(--chrome-lo); font-size: 0.6rem; }
+#imgFileInput { display: none; }
+#imageGrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 8px; }
+.img-thumb {
+  position: relative; aspect-ratio: 1; background: var(--gunmetal); overflow: hidden;
+  border: 1px solid var(--gunmetal); cursor: grab;
+}
+.img-thumb.dragging { opacity: 0.4; }
+.img-thumb.drag-over { border-color: var(--red); }
+.img-thumb img { width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
+.img-thumb-del {
+  position: absolute; top: 4px; right: 4px; background: rgba(0,0,0,0.8);
+  border: 1px solid #666; color: #ccc; width: 20px; height: 20px; font-size: 0.65rem;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s;
+}
+.img-thumb-del:hover { background: #e74c3c; border-color: #e74c3c; color: #fff; }
+.img-thumb-badge {
+  position: absolute; bottom: 4px; left: 4px; background: var(--red);
+  font-family: var(--font-mono); font-size: 0.5rem; letter-spacing: 0.1em;
+  color: #fff; padding: 2px 5px; text-transform: uppercase;
+}
+.img-upload-progress {
+  font-family: var(--font-mono); font-size: 0.65rem; color: var(--muted);
+  margin-top: 6px; display: none;
+}
+
+/* ── ACTION BAR ── */
+.action-bar {
+  position: sticky; bottom: 0; background: var(--surface);
+  border-top: 1px solid var(--gunmetal); padding: 16px 32px;
+  display: flex; gap: 12px; justify-content: flex-end;
+}
+.btn-primary {
+  background: var(--red); color: var(--chrome-hi); border: 1px solid var(--red-hi);
+  font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.15em; text-transform: uppercase;
+  padding: 12px 24px; cursor: pointer; transition: background 0.2s;
+  clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+}
+.btn-primary:hover { background: var(--red-hi); }
+.btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* ── PREVIEW ── */
+.preview-title { font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 0.2em; color: var(--red); text-transform: uppercase; margin-bottom: 20px; }
+.preview-card {
+  background: var(--surface2); border: 1px solid rgba(200,200,200,0.08);
+  clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 16px 100%, 0 calc(100% - 16px));
+  margin-bottom: 20px; overflow: hidden;
+}
+.preview-img { width: 100%; aspect-ratio: 4/3; background: var(--gunmetal); overflow: hidden; }
+.preview-img img { width: 100%; height: 100%; object-fit: cover; }
+.preview-img-empty { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-family: var(--font-mono); font-size: 0.65rem; color: var(--muted); }
+.preview-body { padding: 20px; }
+.preview-sku { font-family: var(--font-mono); font-size: 0.55rem; letter-spacing: 0.2em; color: var(--muted); margin-bottom: 6px; }
+.preview-name { font-family: var(--font-head); font-size: 1.3rem; letter-spacing: 0.06em; color: var(--text); margin-bottom: 8px; }
+.preview-price { font-family: var(--font-mono); font-size: 1rem; color: var(--red); margin-bottom: 12px; }
+.preview-desc { font-family: var(--font-body); font-size: 0.78rem; color: var(--muted); line-height: 1.6; margin-bottom: 14px; }
+.preview-specs { list-style: none; display: flex; flex-direction: column; gap: 5px; }
+.preview-specs li { font-family: var(--font-mono); font-size: 0.65rem; color: var(--chrome-lo); display: flex; align-items: flex-start; gap: 6px; }
+.preview-specs li::before { content: '◆'; color: var(--red); flex-shrink: 0; font-size: 0.5rem; margin-top: 2px; }
+.preview-shipping { font-family: var(--font-mono); font-size: 0.6rem; color: var(--muted); margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--gunmetal); }
+
+/* ── CODE OUTPUT ── */
+.code-section { margin-top: 20px; }
+.code-label { font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: 0.15em; color: var(--muted); text-transform: uppercase; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
+.code-block {
+  background: var(--black); border: 1px solid var(--gunmetal); padding: 14px;
+  font-family: var(--font-mono); font-size: 0.62rem; color: var(--chrome-lo);
+  white-space: pre-wrap; word-break: break-all; max-height: 200px; overflow-y: auto;
+  line-height: 1.6;
+}
+.btn-copy { background: none; border: 1px solid var(--gunmetal); color: var(--muted); font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: 0.1em; padding: 4px 10px; cursor: pointer; transition: all 0.15s; }
+.btn-copy:hover { border-color: var(--chrome-lo); color: var(--chrome); }
+.btn-copy.copied { border-color: #2ecc71; color: #2ecc71; }
+
+/* ── COMMIT MODAL ── */
+#commitModal {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.9);
+  display: none; align-items: center; justify-content: center; z-index: 500;
+}
+#commitModal.open { display: flex; }
+.commit-box {
+  background: var(--surface); border: 1px solid var(--gunmetal);
+  padding: 36px; width: 520px; max-width: 95vw; display: flex; flex-direction: column; gap: 18px;
+  clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 16px 100%, 0 calc(100% - 16px));
+}
+.commit-box h2 { font-family: var(--font-head); font-size: 1.6rem; letter-spacing: 0.08em; }
+.commit-box p { font-family: var(--font-body); font-size: 0.82rem; color: var(--muted); line-height: 1.6; }
+.commit-checklist { display: flex; flex-direction: column; gap: 8px; }
+.commit-check { display: flex; align-items: center; gap: 10px; font-family: var(--font-mono); font-size: 0.68rem; }
+.commit-check .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--gunmetal); flex-shrink: 0; transition: background 0.3s; }
+.commit-check .dot.done { background: #2ecc71; }
+.commit-check .dot.err { background: #e74c3c; }
+.commit-check .dot.running { background: #f39c12; animation: pulse 0.8s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+.commit-actions { display: flex; gap: 10px; }
+.commit-err { font-family: var(--font-mono); font-size: 0.65rem; color: #e74c3c; display: none; }
+.commit-err.show { display: block; }
+
+@media (max-width: 900px) {
+  .layout { grid-template-columns: 1fr; }
+  .preview-col { position: static; height: auto; border-top: 1px solid var(--gunmetal); }
+}
+</style>
+</head>
+<body>
+
+<!-- ── GATE ── -->
+<div id="gate">
+  <div class="gate-logo">STOMP<span>GUARD</span> <span style="font-size:1rem;color:var(--muted)">// PRODUCT MANAGER</span></div>
+  <div class="gate-box">
+    <h2>Authentication Required</h2>
+    <div class="field">
+      <label>Password</label>
+      <input class="gate-input" id="gatePass" type="password" placeholder="Enter password" autocomplete="current-password">
+      <div class="gate-err" id="gateErr">Incorrect password.</div>
+    </div>
+    <div class="field">
+      <label>GitHub Personal Access Token</label>
+      <input class="gate-input" id="gatePat" type="password" placeholder="github_pat_...">
+      <div class="gate-err" id="patErr">Token cannot be empty.</div>
+    </div>
+    <button class="gate-btn" onclick="authenticate()">Access Product Manager</button>
+    <hr class="gate-divider">
+    <div class="gate-reset" onclick="openReset()">Forgot password? Reset it here</div>
+  </div>
+</div>
+
+<!-- ── RESET MODAL ── -->
+<div id="resetModal">
+  <div class="reset-box">
+    <h3>Reset Password</h3>
+    <p style="font-family:var(--font-mono);font-size:0.65rem;color:var(--muted)">Enter your current password to set a new one.</p>
+    <div class="field"><label>Current Password</label><input class="gate-input" id="resetCurrent" type="password"></div>
+    <div class="field"><label>New Password</label><input class="gate-input" id="resetNew" type="password"></div>
+    <div class="field"><label>Confirm New Password</label><input class="gate-input" id="resetConfirm" type="password"></div>
+    <div class="gate-err" id="resetErr"></div>
+    <div style="display:flex;gap:8px">
+      <button class="gate-btn" style="flex:1" onclick="doReset()">Reset Password</button>
+      <button class="btn-ghost" onclick="closeReset()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── COMMIT MODAL ── -->
+<div id="commitModal">
+  <div class="commit-box">
+    <h2>Commit to GitHub</h2>
+    <p>This will push the new product directly to <strong>main</strong> in your StompGuard repo. Cloudflare will deploy automatically (~30s).</p>
+    <div class="commit-checklist" id="commitChecklist">
+      <div class="commit-check"><div class="dot" id="dot1"></div><span id="step1">Fetch current index.html + SHA</span></div>
+      <div class="commit-check"><div class="dot" id="dot2"></div><span id="step2">Inject product into PRODUCTS object</span></div>
+      <div class="commit-check"><div class="dot" id="dot3"></div><span id="step3">Inject price ID into PRICE_IDS</span></div>
+      <div class="commit-check"><div class="dot" id="dot4"></div><span id="step4">Push updated index.html</span></div>
+    </div>
+    <div class="commit-err" id="commitErr"></div>
+    <div class="commit-actions" id="commitActions">
+      <button class="btn-primary" id="confirmCommitBtn" onclick="executeCommit()">Confirm &amp; Commit</button>
+      <button class="btn-ghost" onclick="closeCommit()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── APP ── -->
+<div id="app">
+  <div class="topbar">
+    <div class="topbar-logo">STOMP<span>GUARD</span> <span style="font-size:0.9rem;color:var(--muted);font-family:var(--font-mono);letter-spacing:0.05em">// NEW PRODUCT</span></div>
+    <div class="topbar-status">
+      <div class="status-dot" id="stripeStatusDot"></div>
+      <span id="stripeStatusText" style="font-size:0.62rem">Stripe: not connected</span>
+    </div>
+  </div>
+
+  <div class="layout">
+    <!-- FORM -->
+    <div class="form-col">
+
+      <!-- IDENTITY -->
+      <div class="section">
+        <div class="section-label">01 // Product Identity</div>
+        <div class="field">
+          <label>Product Name</label>
+          <input type="text" id="fName" placeholder="e.g. Boss RC-600 StompGuard Acrylic Protector" oninput="updatePreview()">
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>SKU</label>
+            <input type="text" id="fSku" placeholder="e.g. QC-005" oninput="updatePreview()">
+          </div>
+          <div class="field">
+            <label>URL Slug</label>
+            <input type="text" id="fSlug" placeholder="e.g. boss-rc600" oninput="updatePreview()">
+            <div class="field-hint">lowercase, hyphens only</div>
+          </div>
+        </div>
+        <div class="field">
+          <label>Description</label>
+          <textarea id="fDesc" placeholder="Short product description shown in modal..." oninput="updatePreview()"></textarea>
+        </div>
+      </div>
+
+      <!-- PRICING -->
+      <div class="section">
+        <div class="section-label">02 // Pricing &amp; Shipping</div>
+        <div class="field-row">
+          <div class="field">
+            <label>Display Price</label>
+            <input type="text" id="fPrice" placeholder="$29.95" oninput="updatePreview()">
+          </div>
+          <div class="field">
+            <label>Cart Price (numeric)</label>
+            <input type="number" id="fCartPrice" placeholder="29.95" step="0.01" oninput="updatePreview()">
+          </div>
+        </div>
+        <div class="field">
+          <label>Shipping Tier</label>
+          <select id="fShipping" onchange="updatePreview()">
+            <option value="small">Small — $9.95 (Nano Cortex, Digitech Drop size)</option>
+            <option value="large">Large — $19.95 (Quad Cortex, QC Mini size)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- STRIPE -->
+      <div class="section">
+        <div class="section-label">03 // Stripe (Test Mode)</div>
+        <div class="field-row">
+          <div class="field">
+            <label>Stripe Secret Key</label>
+            <input type="password" id="fStripeKey" placeholder="sk_test_..." oninput="checkStripeKey()">
+            <div class="field-hint">Used only in this session — never stored</div>
+          </div>
+          <div class="field" style="display:flex;align-items:flex-end">
+            <button class="btn-ghost" style="width:100%;margin-bottom:0" onclick="createStripeProduct()">Create in Stripe →</button>
+          </div>
+        </div>
+        <div class="field">
+          <label>Stripe Price ID <span style="color:var(--red)">*</span></label>
+          <input type="text" id="fPriceId" placeholder="price_... (auto-filled after Stripe creation)" oninput="updatePreview()">
+          <div class="field-hint">Required to commit. Create above or paste manually.</div>
+        </div>
+        <div id="stripeMsg" style="font-family:var(--font-mono);font-size:0.65rem;color:var(--muted);display:none"></div>
+      </div>
+
+      <!-- SPECS -->
+      <div class="section">
+        <div class="section-label">04 // Specs</div>
+        <div id="specList"></div>
+        <button class="btn-ghost" onclick="addSpec()">+ Add Spec Line</button>
+      </div>
+
+      <!-- IMAGES -->
+      <div class="section">
+        <div class="section-label">05 // Images</div>
+        <div id="imageDropzone" onclick="document.getElementById('imgFileInput').click()">
+          <p>Drop images here or tap to browse</p>
+          <span>PNG, JPG — drag to reorder after upload</span>
+        </div>
+        <input type="file" id="imgFileInput" accept="image/*" multiple onchange="handleImageFiles(this.files)">
+        <div id="imageGrid"></div>
+        <div class="img-upload-progress" id="uploadProgress"></div>
+        <div class="field-hint">First image is the primary card image. Drag to reorder.</div>
+      </div>
+
+    </div>
+
+    <!-- PREVIEW -->
+    <div class="preview-col">
+      <div class="preview-title">// Live Preview</div>
+
+      <div class="preview-card">
+        <div class="preview-img" id="prevImg">
+          <div class="preview-img-empty">No image yet</div>
+        </div>
+        <div class="preview-body">
+          <div class="preview-sku" id="prevSku">SKU</div>
+          <div class="preview-name" id="prevName">Product Name</div>
+          <div class="preview-price" id="prevPrice">$0.00</div>
+          <div class="preview-desc" id="prevDesc">Description will appear here.</div>
+          <ul class="preview-specs" id="prevSpecs"></ul>
+          <div class="preview-shipping" id="prevShipping">Shipping: —</div>
+        </div>
+      </div>
+
+      <div class="code-section">
+        <div class="code-label">
+          <span>Generated Code</span>
+          <button class="btn-copy" id="copyBtn" onclick="copyCode()">Copy</button>
+        </div>
+        <div class="code-block" id="codeOutput">// Fill in fields to generate product code</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ACTION BAR -->
+  <div class="action-bar">
+    <button class="btn-ghost" onclick="resetForm()">Clear Form</button>
+    <button class="btn-primary" id="commitBtn" onclick="openCommit()">Preview &amp; Commit to GitHub →</button>
+  </div>
+</div>
+
+<script>
+// ── CONFIG ──
+const REPO = 'scottmoreau82/StompGuard-Site';
+const PASS_KEY = 'sg_pm_pass';
+const DEFAULT_PASS_HASH = btoa('Stasis12'); // simple obfuscation, not cryptographic
+let SESSION_PAT = '';
+let images = []; // {file, dataUrl, githubPath, githubUrl}
+let dragSrcIdx = null;
+
+// ── AUTH ──
+function hashPass(p) { return btoa(p); }
+function getStoredHash() { return localStorage.getItem(PASS_KEY) || DEFAULT_PASS_HASH; }
+
+function authenticate() {
+  const pass = document.getElementById('gatePass').value;
+  const pat  = document.getElementById('gatePat').value.trim();
+  let ok = true;
+  if (hashPass(pass) !== getStoredHash()) {
+    document.getElementById('gatePass').classList.add('error');
+    document.getElementById('gateErr').classList.add('show');
+    ok = false;
+  } else {
+    document.getElementById('gatePass').classList.remove('error');
+    document.getElementById('gateErr').classList.remove('show');
+  }
+  if (!pat) {
+    document.getElementById('gatePat').classList.add('error');
+    document.getElementById('patErr').classList.add('show');
+    ok = false;
+  } else {
+    document.getElementById('gatePat').classList.remove('error');
+    document.getElementById('patErr').classList.remove('show');
+  }
+  if (!ok) return;
+  SESSION_PAT = pat;
+  document.getElementById('gate').style.display = 'none';
+  document.getElementById('app').classList.add('visible');
+  addSpec(); // start with one spec line
+}
+
+document.getElementById('gatePass').addEventListener('keydown', e => { if (e.key === 'Enter') authenticate(); });
+document.getElementById('gatePat').addEventListener('keydown', e => { if (e.key === 'Enter') authenticate(); });
+
+function openReset() { document.getElementById('resetModal').classList.add('open'); }
+function closeReset() { document.getElementById('resetModal').classList.remove('open'); }
+function doReset() {
+  const cur  = document.getElementById('resetCurrent').value;
+  const nw   = document.getElementById('resetNew').value;
+  const conf = document.getElementById('resetConfirm').value;
+  const errEl = document.getElementById('resetErr');
+  if (hashPass(cur) !== getStoredHash()) { errEl.textContent = 'Current password incorrect.'; errEl.classList.add('show'); return; }
+  if (nw.length < 6) { errEl.textContent = 'New password must be at least 6 characters.'; errEl.classList.add('show'); return; }
+  if (nw !== conf) { errEl.textContent = 'Passwords do not match.'; errEl.classList.add('show'); return; }
+  localStorage.setItem(PASS_KEY, hashPass(nw));
+  errEl.classList.remove('show');
+  closeReset();
+  alert('Password updated. Use the new password next time you log in.');
+}
+
+// ── SPECS ──
+function addSpec(val='') {
+  const list = document.getElementById('specList');
+  const div  = document.createElement('div');
+  div.className = 'spec-item';
+  div.innerHTML = `<input type="text" placeholder="e.g. Precision Laser-cut for exact fit" value="${val}" oninput="updatePreview()">
+    <button class="spec-del" onclick="this.parentElement.remove();updatePreview()">✕</button>`;
+  list.appendChild(div);
+  updatePreview();
+}
+function getSpecs() {
+  return [...document.querySelectorAll('#specList .spec-item input')].map(i=>i.value.trim()).filter(Boolean);
+}
+
+// ── IMAGES ──
+const dropzone = document.getElementById('imageDropzone');
+dropzone.addEventListener('dragover', e => { e.preventDefault(); dropzone.classList.add('over'); });
+dropzone.addEventListener('dragleave', () => dropzone.classList.remove('over'));
+dropzone.addEventListener('drop', e => { e.preventDefault(); dropzone.classList.remove('over'); handleImageFiles(e.dataTransfer.files); });
+
+function handleImageFiles(files) {
+  [...files].forEach(file => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      images.push({ file, dataUrl: e.target.result, githubPath: null, githubUrl: null });
+      renderImageGrid();
+      updatePreview();
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function renderImageGrid() {
+  const grid = document.getElementById('imageGrid');
+  grid.innerHTML = '';
+  images.forEach((img, i) => {
+    const div = document.createElement('div');
+    div.className = 'img-thumb';
+    div.draggable = true;
+    div.dataset.idx = i;
+    div.innerHTML = `<img src="${img.dataUrl}">
+      ${i===0?'<div class="img-thumb-badge">Primary</div>':''}
+      <div class="img-thumb-del" onclick="removeImage(${i})">✕</div>`;
+    div.addEventListener('dragstart', e => { dragSrcIdx = i; div.classList.add('dragging'); });
+    div.addEventListener('dragend',   () => { div.classList.remove('dragging'); renderImageGrid(); });
+    div.addEventListener('dragover',  e => { e.preventDefault(); div.classList.add('drag-over'); });
+    div.addEventListener('dragleave', () => div.classList.remove('drag-over'));
+    div.addEventListener('drop', e => {
+      e.preventDefault(); div.classList.remove('drag-over');
+      if (dragSrcIdx === null || dragSrcIdx === i) return;
+      const moved = images.splice(dragSrcIdx, 1)[0];
+      images.splice(i, 0, moved);
+      dragSrcIdx = null;
+      renderImageGrid(); updatePreview();
+    });
+    grid.appendChild(div);
+  });
+}
+
+function removeImage(i) { images.splice(i, 1); renderImageGrid(); updatePreview(); }
+
+// ── STRIPE ──
+function checkStripeKey() {
+  const key = document.getElementById('fStripeKey').value.trim();
+  const dot  = document.getElementById('stripeStatusDot');
+  const txt  = document.getElementById('stripeStatusText');
+  if (key.startsWith('sk_test_') && key.length > 20) {
+    dot.classList.add('ok'); dot.classList.remove('err');
+    txt.textContent = 'Stripe: test key ready';
+  } else {
+    dot.classList.remove('ok'); dot.classList.remove('err');
+    txt.textContent = 'Stripe: not connected';
+  }
+}
+
+async function createStripeProduct() {
+  const key   = document.getElementById('fStripeKey').value.trim();
+  const name  = document.getElementById('fName').value.trim();
+  const price = parseFloat(document.getElementById('fCartPrice').value);
+  const msgEl = document.getElementById('stripeMsg');
+  if (!key.startsWith('sk_test_')) { alert('Enter a valid Stripe test secret key first.'); return; }
+  if (!name) { alert('Enter a product name first.'); return; }
+  if (!price || isNaN(price)) { alert('Enter a valid cart price first.'); return; }
+
+  msgEl.style.display = 'block';
+  msgEl.style.color = 'var(--muted)';
+  msgEl.textContent = 'Creating product in Stripe...';
+
+  try {
+    // Create product
+    const prodRes = await fetch('https://api.stripe.com/v1/products', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({ name, description: document.getElementById('fDesc').value || name })
+    });
+    const prod = await prodRes.json();
+    if (prod.error) throw new Error(prod.error.message);
+
+    msgEl.textContent = `Product created: ${prod.id} — creating price...`;
+
+    // Create price
+    const priceRes = await fetch('https://api.stripe.com/v1/prices', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({ product: prod.id, unit_amount: Math.round(price * 100), currency: 'usd' })
+    });
+    const priceObj = await priceRes.json();
+    if (priceObj.error) throw new Error(priceObj.error.message);
+
+    document.getElementById('fPriceId').value = priceObj.id;
+    msgEl.style.color = '#2ecc71';
+    msgEl.textContent = `✓ Done — Price ID: ${priceObj.id}`;
+    document.getElementById('stripeStatusDot').classList.add('ok');
+    document.getElementById('stripeStatusText').textContent = 'Stripe: product created';
+    updatePreview();
+  } catch(err) {
+    msgEl.style.color = '#e74c3c';
+    msgEl.textContent = `✕ Stripe error: ${err.message}`;
+  }
+}
+
+// ── PREVIEW & CODE GEN ──
+function slugify(s) { return s.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,''); }
+
+function updatePreview() {
+  const name      = document.getElementById('fName').value.trim() || 'Product Name';
+  const sku       = document.getElementById('fSku').value.trim()  || 'SKU';
+  const price     = document.getElementById('fPrice').value.trim() || '$0.00';
+  const cartPrice = parseFloat(document.getElementById('fCartPrice').value) || 0;
+  const desc      = document.getElementById('fDesc').value.trim()  || 'Description will appear here.';
+  const shipping  = document.getElementById('fShipping').value;
+  const priceId   = document.getElementById('fPriceId').value.trim();
+  let   slug      = document.getElementById('fSlug').value.trim();
+  if (!slug && name !== 'Product Name') { slug = slugify(name); document.getElementById('fSlug').value = slug; }
+  const specs     = getSpecs();
+
+  // Preview card
+  document.getElementById('prevSku').textContent   = sku;
+  document.getElementById('prevName').textContent  = name;
+  document.getElementById('prevPrice').textContent = price;
+  document.getElementById('prevDesc').textContent  = desc;
+  document.getElementById('prevShipping').textContent = shipping === 'large' ? 'Shipping: $19.95' : 'Shipping: $9.95';
+
+  // Image
+  const imgEl = document.getElementById('prevImg');
+  if (images.length > 0) {
+    imgEl.innerHTML = `<img src="${images[0].dataUrl}" alt="${name}">`;
+  } else {
+    imgEl.innerHTML = '<div class="preview-img-empty">No image yet</div>';
+  }
+
+  // Specs
+  const specsEl = document.getElementById('prevSpecs');
+  specsEl.innerHTML = specs.map(s=>`<li>${s}</li>`).join('') || '<li style="color:var(--muted);font-style:italic">No specs yet</li>';
+
+  // Code gen
+  const imageUrls = images.map(img => img.githubUrl || img.dataUrl.substring(0,60)+'...');
+  const specsStr  = JSON.stringify(specs);
+  const imgStr    = JSON.stringify(imageUrls);
+
+  const productEntry = `  '${slug}': {
+    sku: '${sku}',
+    name: '${name}',
+    price: '${price}',
+    cartId: '${slug}',
+    cartName: '${name}',
+    cartPrice: ${cartPrice.toFixed(2)},
+    desc: '${desc.replace(/'/g,"\\'")}',
+    specs: ${specsStr},
+    images: ${imgStr}
+  }`;
+
+  const priceEntry = `  '${slug}': '${priceId || 'price_PENDING'}'`;
+
+  document.getElementById('codeOutput').textContent =
+    `// Add to PRODUCTS object:\n${productEntry}\n\n// Add to PRICE_IDS object:\n${priceEntry}`;
+}
+
+function copyCode() {
+  navigator.clipboard.writeText(document.getElementById('codeOutput').textContent);
+  const btn = document.getElementById('copyBtn');
+  btn.textContent = 'Copied!'; btn.classList.add('copied');
+  setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+}
+
+// ── GITHUB COMMIT ──
+function openCommit() {
+  const slug    = document.getElementById('fSlug').value.trim();
+  const name    = document.getElementById('fName').value.trim();
+  const priceId = document.getElementById('fPriceId').value.trim();
+  if (!slug || !name) { alert('Product name and slug are required.'); return; }
+  if (!priceId) { alert('Stripe Price ID is required before committing.'); return; }
+  if (!SESSION_PAT) { alert('No GitHub token in session. Please log in again.'); return; }
+  // Reset dots
+  ['dot1','dot2','dot3','dot4'].forEach(id => {
+    document.getElementById(id).className = 'dot';
+  });
+  document.getElementById('commitErr').classList.remove('show');
+  document.getElementById('confirmCommitBtn').disabled = false;
+  document.getElementById('commitModal').classList.add('open');
+}
+function closeCommit() { document.getElementById('commitModal').classList.remove('open'); }
+
+function setStep(n, state) {
+  document.getElementById('dot'+n).className = 'dot ' + state;
+}
+
+async function uploadImages() {
+  const slug = document.getElementById('fSlug').value.trim();
+  const prog = document.getElementById('uploadProgress');
+  prog.style.display = 'block';
+  for (let i = 0; i < images.length; i++) {
+    if (images[i].githubUrl) continue; // already uploaded
+    const img   = images[i];
+    const ext   = img.file.name.split('.').pop().toLowerCase();
+    const fname = `${slug}-${i+1}.${ext}`;
+    const path  = `images/products/${slug}/${fname}`;
+    prog.textContent = `Uploading image ${i+1}/${images.length}: ${fname}`;
+    // Convert dataUrl to base64
+    const b64 = img.dataUrl.split(',')[1];
+    const url = `https://api.github.com/repos/${REPO}/contents/${path}`;
+    // Check if file exists (get sha if so)
+    let sha = undefined;
+    try {
+      const chk = await fetch(url, { headers: { 'Authorization': `Bearer ${SESSION_PAT}` } });
+      if (chk.ok) { const j = await chk.json(); sha = j.sha; }
+    } catch(e) {}
+    const body = { message: `feat: add product image ${fname}`, content: b64, branch: 'main' };
+    if (sha) body.sha = sha;
+    const res = await fetch(url, { method: 'PUT', headers: { 'Authorization': `Bearer ${SESSION_PAT}`, 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    if (!res.ok) throw new Error(`Image upload failed: ${res.statusText}`);
+    const data = await res.json();
+    images[i].githubPath = path;
+    images[i].githubUrl  = `https://raw.githubusercontent.com/${REPO}/refs/heads/main/${path}`;
+  }
+  prog.style.display = 'none';
+}
+
+async function executeCommit() {
+  document.getElementById('confirmCommitBtn').disabled = true;
+  const errEl = document.getElementById('commitErr');
+  errEl.classList.remove('show');
+
+  try {
+    // Step 1: Upload images & fetch index.html
+    setStep(1, 'running');
+    await uploadImages();
+    const apiUrl = `https://api.github.com/repos/${REPO}/contents/index.html?ref=main`;
+    const fetchRes = await fetch(apiUrl, { headers: { 'Authorization': `Bearer ${SESSION_PAT}` } });
+    if (!fetchRes.ok) throw new Error('Could not fetch index.html from GitHub');
+    const fileData = await fetchRes.json();
+    const sha      = fileData.sha;
+    let   source   = atob(fileData.content.replace(/\n/g,''));
+    setStep(1, 'done');
+
+    // Step 2: Inject into PRODUCTS
+    setStep(2, 'running');
+    const slug      = document.getElementById('fSlug').value.trim();
+    const name      = document.getElementById('fName').value.trim();
+    const sku       = document.getElementById('fSku').value.trim();
+    const price     = document.getElementById('fPrice').value.trim();
+    const cartPrice = parseFloat(document.getElementById('fCartPrice').value);
+    const desc      = document.getElementById('fDesc').value.trim().replace(/'/g,"\\'");
+    const specs     = getSpecs();
+    const imageUrls = images.map(img => img.githubUrl || '');
+    const specsStr  = JSON.stringify(specs);
+    const imgStr    = JSON.stringify(imageUrls);
+
+    const newEntry = `\n  '${slug}': {\n    sku: '${sku}',\n    name: '${name}',\n    price: '${price}',\n    cartId: '${slug}',\n    cartName: '${name}',\n    cartPrice: ${cartPrice.toFixed(2)},\n    desc: '${desc}',\n    specs: ${specsStr},\n    images: ${imgStr}\n  }`;
+
+    // Find closing of PRODUCTS object: last };  before PRICE_IDS
+    const productsEnd = source.indexOf('\n};\n\nconst PRICE_IDS');
+    if (productsEnd === -1) throw new Error('Could not locate PRODUCTS object in index.html');
+    source = source.slice(0, productsEnd) + ',' + newEntry + source.slice(productsEnd);
+    setStep(2, 'done');
+
+    // Step 3: Inject into PRICE_IDS
+    setStep(3, 'running');
+    const priceId    = document.getElementById('fPriceId').value.trim();
+    const priceEntry = `\n  '${slug}': '${priceId}'`;
+    const priceEnd   = source.indexOf('\n};\n\nlet cart');
+    if (priceEnd === -1) throw new Error('Could not locate PRICE_IDS object in index.html');
+    source = source.slice(0, priceEnd) + ',' + priceEntry + source.slice(priceEnd);
+    setStep(3, 'done');
+
+    // Step 4: Push
+    setStep(4, 'running');
+    const b64Updated = btoa(unescape(encodeURIComponent(source)));
+    const pushRes = await fetch(apiUrl, {
+      method: 'PUT',
+      headers: { 'Authorization': `Bearer ${SESSION_PAT}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: `feat: add product — ${name}`, content: b64Updated, sha, branch: 'main' })
+    });
+    if (!pushRes.ok) { const e = await pushRes.json(); throw new Error(e.message || 'Push failed'); }
+    setStep(4, 'done');
+
+    document.getElementById('commitActions').innerHTML = `
+      <div style="font-family:var(--font-mono);font-size:0.75rem;color:#2ecc71">
+        ✓ Committed successfully. Cloudflare will deploy in ~30 seconds.
+      </div>
+      <button class="btn-ghost" onclick="closeCommit()">Done</button>`;
+
+  } catch(err) {
+    errEl.textContent = '✕ ' + err.message;
+    errEl.classList.add('show');
+    document.getElementById('confirmCommitBtn').disabled = false;
+    ['dot1','dot2','dot3','dot4'].forEach(id => {
+      if (document.getElementById(id).classList.contains('running'))
+        document.getElementById(id).className = 'dot err';
+    });
+  }
+}
+
+// ── UTILS ──
+function resetForm() {
+  if (!confirm('Clear all fields and start over?')) return;
+  ['fName','fSku','fSlug','fPrice','fCartPrice','fDesc','fPriceId'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('specList').innerHTML = '';
+  images = [];
+  renderImageGrid();
+  addSpec();
+  updatePreview();
+}
+
+// Init
+document.addEventListener('DOMContentLoaded', updatePreview);
+</script>
+</body>
+</html>
