@@ -295,7 +295,8 @@ html, body { height: 100%; background: var(--black); color: var(--text); font-fa
       <div class="commit-check"><div class="dot" id="dot1"></div><span id="step1">Fetch current index.html + SHA</span></div>
       <div class="commit-check"><div class="dot" id="dot2"></div><span id="step2">Inject product into PRODUCTS object</span></div>
       <div class="commit-check"><div class="dot" id="dot3"></div><span id="step3">Inject price ID into PRICE_IDS</span></div>
-      <div class="commit-check"><div class="dot" id="dot4"></div><span id="step4">Push updated index.html</span></div>
+      <div class="commit-check"><div class="dot" id="dot4"></div><span id="step4">Inject product card into catalog grid</span></div>
+      <div class="commit-check"><div class="dot" id="dot5"></div><span id="step5">Push updated index.html</span></div>
     </div>
     <div class="commit-err" id="commitErr"></div>
     <div class="commit-actions" id="commitActions">
@@ -341,7 +342,8 @@ html, body { height: 100%; background: var(--black); color: var(--text); font-fa
         <div class="commit-check"><div class="dot" id="ddot1"></div><span id="dstep1">Fetch current index.html + SHA</span></div>
         <div class="commit-check"><div class="dot" id="ddot2"></div><span id="dstep2">Remove from PRODUCTS object</span></div>
         <div class="commit-check"><div class="dot" id="ddot3"></div><span id="dstep3">Remove from PRICE_IDS object</span></div>
-        <div class="commit-check"><div class="dot" id="ddot4"></div><span id="dstep4">Push updated index.html</span></div>
+        <div class="commit-check"><div class="dot" id="ddot4"></div><span id="dstep4">Remove product card from catalog grid</span></div>
+        <div class="commit-check"><div class="dot" id="ddot5"></div><span id="dstep5">Push updated index.html</span></div>
       </div>
       <div class="commit-err" id="deleteErr"></div>
       <div style="display:flex;gap:10px" id="deleteActions">
@@ -824,8 +826,18 @@ async function executeCommit() {
     source = source.slice(0, priceEnd) + ',' + priceEntry + source.slice(priceEnd);
     setStep(3, 'done');
 
-    // Step 4: Push
+    // Step 4: Inject product card HTML into catalog grid
     setStep(4, 'running');
+    const firstImageUrl = imageUrls[0] || '';
+    const cardHtml = `\n    <div class="product-card" onclick="openProduct('${slug}')">\n      <div class="product-card-img">\n        <img src="${firstImageUrl}" alt="${name}"/>\n      </div>\n      <div class="product-card-body">\n        <div class="product-card-unit">${sku}</div>\n        <div class="product-card-name">${name}</div>\n        <div class="product-card-footer">\n          <span class="product-card-price">${price}</span>\n          <a class="add-btn" onclick="addToCart(event,'${slug}','${name}',${cartPrice.toFixed(2)})" href="#">Add to Cart</a>\n        </div>\n      </div>\n    </div>`;
+    const gridClose = '  </div>\n</section>';
+    const gridCloseIdx = source.indexOf(gridClose, source.indexOf('products-grid'));
+    if (gridCloseIdx === -1) throw new Error('Could not locate product grid closing tag');
+    source = source.slice(0, gridCloseIdx) + cardHtml + '\n' + source.slice(gridCloseIdx);
+    setStep(4, 'done');
+
+    // Step 5: Push
+    setStep(5, 'running');
     const b64Updated = btoa(unescape(encodeURIComponent(source)));
     const pushRes = await fetch(apiUrl, {
       method: 'PUT',
@@ -833,7 +845,7 @@ async function executeCommit() {
       body: JSON.stringify({ message: `feat: add product — ${name}`, content: b64Updated, sha, branch: 'main' })
     });
     if (!pushRes.ok) { const e = await pushRes.json(); throw new Error(e.message || 'Push failed'); }
-    setStep(4, 'done');
+    setStep(5, 'done');
 
     document.getElementById('commitActions').innerHTML = `
       <div style="font-family:var(--font-mono);font-size:0.75rem;color:#2ecc71">
@@ -845,7 +857,7 @@ async function executeCommit() {
     errEl.textContent = '✕ ' + err.message;
     errEl.classList.add('show');
     document.getElementById('confirmCommitBtn').disabled = false;
-    ['dot1','dot2','dot3','dot4'].forEach(id => {
+    ['dot1','dot2','dot3','dot4','dot5'].forEach(id => {
       if (document.getElementById(id).classList.contains('running'))
         document.getElementById(id).className = 'dot err';
     });
@@ -941,7 +953,7 @@ function confirmDelete(slug, name) {
   deleteTargetSlug = slug;
   deleteTargetName = name;
   document.getElementById('delProductName').textContent = name;
-  ['ddot1','ddot2','ddot3','ddot4'].forEach(id => document.getElementById(id).className = 'dot');
+  ['ddot1','ddot2','ddot3','ddot4','ddot5'].forEach(id => document.getElementById(id).className = 'dot');
   document.getElementById('deleteErr').classList.remove('show');
   document.getElementById('confirmDelBtn').disabled = false;
   document.getElementById('deleteActions').innerHTML = `
@@ -1001,8 +1013,25 @@ async function executeDelete() {
     source = source.replace(priceRegex, '');
     setDelStep(3, 'done');
 
-    // Step 4: Push
+    // Step 4: Remove product card HTML from catalog grid
     setDelStep(4, 'running');
+    const cardMarker = `onclick="openProduct('${slug}')"`;
+    const cardMarkerIdx = source.indexOf(cardMarker, source.indexOf('products-grid'));
+    if (cardMarkerIdx !== -1) {
+      let cs = source.lastIndexOf('<div', cardMarkerIdx);
+      let dc = 0, ce = cs;
+      for (let i = cs; i < source.length - 5; i++) {
+        if (source.slice(i,i+4) === '<div') dc++;
+        else if (source.slice(i,i+6) === '</div>') { dc--; if (dc===0){ce=i+6;break;} }
+      }
+      let trimStart = cs;
+      while (trimStart > 0 && (source[trimStart-1]===' '||source[trimStart-1]==='\n')) trimStart--;
+      source = source.slice(0, trimStart) + source.slice(ce);
+    }
+    setDelStep(4, 'done');
+
+    // Step 5: Push
+    setDelStep(5, 'running');
     const b64 = btoa(unescape(encodeURIComponent(source)));
     const pushRes = await fetch(apiUrl, {
       method: 'PUT',
@@ -1010,7 +1039,7 @@ async function executeDelete() {
       body: JSON.stringify({ message: `feat: remove product — ${deleteTargetName}`, content: b64, sha, branch: 'main' })
     });
     if (!pushRes.ok) { const e = await pushRes.json(); throw new Error(e.message || 'Push failed'); }
-    setDelStep(4, 'done');
+    setDelStep(5, 'done');
 
     document.getElementById('deleteActions').innerHTML = `
       <div style="font-family:var(--font-mono);font-size:0.75rem;color:#2ecc71">
@@ -1022,7 +1051,7 @@ async function executeDelete() {
     errEl.textContent = '✕ ' + err.message;
     errEl.classList.add('show');
     document.getElementById('confirmDelBtn').disabled = false;
-    ['ddot1','ddot2','ddot3','ddot4'].forEach(id => {
+    ['ddot1','ddot2','ddot3','ddot4','ddot5'].forEach(id => {
       if (document.getElementById(id).classList.contains('running'))
         document.getElementById(id).className = 'dot err';
     });
