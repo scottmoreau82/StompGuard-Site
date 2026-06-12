@@ -846,16 +846,21 @@ async function executeCommit() {
     const firstImageUrl = imageUrls[0] || '';
     const cardHtml = `\n    <div class="product-card" onclick="openProduct('${slug}')">\n      <div class="product-card-img">\n        <img src="${firstImageUrl}" alt="${name}"/>\n      </div>\n      <div class="product-card-body">\n        <div class="product-card-unit">${sku}</div>\n        <div class="product-card-name">${name}</div>\n        <div class="product-card-footer">\n          <span class="product-card-price">${price}</span>\n          <a class="add-btn" onclick="addToCart(event,'${slug}','${name}',${cartPrice.toFixed(2)})" href="#">Add to Cart</a>\n        </div>\n      </div>\n    </div>`;
     // Use id="products" to locate the grid precisely
-    const gridStart = source.indexOf('id="products"');
-    if (gridStart === -1) throw new Error('Could not locate products grid (id=products)');
-    // Find the closing </div> of the grid div — count nested divs from gridStart
+    // Find the opening <div of the products grid by locating id="products"
+    const gridIdIdx = source.indexOf('id="products"');
+    if (gridIdIdx === -1) throw new Error('Could not locate products grid (id=products)');
+    // Walk back to the start of this <div tag
+    const gridStart = source.lastIndexOf('<div', gridIdIdx);
+    if (gridStart === -1) throw new Error('Could not find opening <div of products grid');
+    // Count nested divs from the opening <div to find the matching closing </div>
     let gdCount = 0, gridClose = -1;
     for (let gi = gridStart; gi < source.length - 5; gi++) {
       if (source.slice(gi,gi+4) === '<div') gdCount++;
       else if (source.slice(gi,gi+6) === '</div>') { gdCount--; if (gdCount===0){gridClose=gi;break;} }
     }
     if (gridClose === -1) throw new Error('Could not find closing tag of products grid');
-    source = source.slice(0, gridClose) + cardHtml + '\n    ' + source.slice(gridClose);
+    // Insert before the grid's own closing </div>
+    source = source.slice(0, gridClose) + cardHtml + '\n  ' + source.slice(gridClose);
     setStep(4, 'done');
 
     // Step 5: Inject into HERO_PRODUCTS array
