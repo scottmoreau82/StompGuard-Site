@@ -783,7 +783,7 @@ async function uploadImages() {
     if (!res.ok) throw new Error(`Image upload failed: ${res.statusText}`);
     const data = await res.json();
     images[i].githubPath = path;
-    images[i].githubUrl  = `https://raw.githubusercontent.com/${REPO}/refs/heads/main/${path}`;
+    images[i].githubUrl  = `https://stompguard-site.pages.dev/${path}`;
   }
   prog.style.display = 'none';
 }
