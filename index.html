@@ -1098,6 +1098,49 @@ nav::before {
 
 .hero-product:hover .hero-product-img img { transform: scale(1.03); }
 
+.hero-product { cursor: pointer; }
+
+.hero-product-nav {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px;
+  background: linear-gradient(transparent, rgba(8,8,8,0.8));
+  z-index: 4;
+}
+
+.hero-product-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--chrome-lo);
+  opacity: 0.4;
+  transition: all 0.2s;
+  cursor: pointer;
+  border: none;
+  padding: 0;
+}
+
+.hero-product-dot.active {
+  background: var(--red);
+  opacity: 1;
+  width: 18px;
+  border-radius: 3px;
+}
+
+.hero-product-cycle-label {
+  position: absolute;
+  top: 10px; right: 12px;
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  letter-spacing: 0.15em;
+  color: var(--chrome-lo);
+  opacity: 0.5;
+  text-transform: uppercase;
+  z-index: 4;
+}
+
 .hero-product-info { padding: 1.2rem 1.5rem; border-top: 1px solid rgba(200,200,200,0.06); }
 
 .hero-product-label {
@@ -1613,15 +1656,17 @@ footer { background: var(--black); border-top: 1px solid rgba(200,200,200,0.06);
     </div>
   </div>
   <div class="hero-right">
-    <div class="hero-product">
-      <div class="hero-product-badge">Best Seller</div>
+    <div class="hero-product" id="hero-product-card" onclick="heroProductClick()">
+      <div class="hero-product-badge" id="hero-badge">Best Seller</div>
       <div class="hero-product-img">
-        <img src="https://stompguard.com/cdn/shop/files/80403f2c-il_fullxfull.7627642180_7w3a.jpg?v=1773128059&width=600" alt="StompGuard product"/>
+        <div class="hero-product-cycle-label">Click to view</div>
+        <img id="hero-product-img" src="https://stompguard.com/cdn/shop/files/62eaf802-il_fullxfull.7575364814_alzo.jpg?v=1773128059&width=600" alt="StompGuard product"/>
+        <div class="hero-product-nav" id="hero-dots"></div>
       </div>
       <div class="hero-product-info">
         <div class="hero-product-label">Product</div>
-        <div class="hero-product-name">Quad Cortex StompGuard Acrylic Protector w/ Screen Shield</div>
-        <div class="hero-product-price"><span>MSRP</span>$49.99</div>
+        <div class="hero-product-name" id="hero-product-name">Quad Cortex StompGuard w/ Screen Protection</div>
+        <div class="hero-product-price"><span>MSRP</span><span id="hero-product-price">$49.99</span></div>
       </div>
     </div>
   </div>
@@ -2322,6 +2367,63 @@ function closeContact() {
 function closeContactOnOverlay(e) {
   if (e.target === document.getElementById('contact-overlay')) closeContact();
 }
+
+// HERO PRODUCT CYCLING
+const HERO_PRODUCTS = [
+  { id: 'quad-cortex', badge: 'Best Seller', img: 'https://stompguard.com/cdn/shop/files/62eaf802-il_fullxfull.7575364814_alzo.jpg?v=1773128059&width=600' },
+  { id: 'quad-cortex-mini', badge: 'New', img: 'https://stompguard.com/cdn/shop/files/26dd5755-il_fullxfull.7636746092_1utv.jpg?v=1773128060&width=600' },
+  { id: 'nano-cortex', badge: '', img: 'https://stompguard.com/cdn/shop/files/d9c0fafb-il_fullxfull.6924149105_frep.jpg?v=1773128059&width=600' },
+  { id: 'digitech-drop', badge: '', img: 'https://stompguard.com/cdn/shop/files/23f2648e-il_fullxfull.6876203484_mk9h.jpg?v=1773128060&width=600' }
+];
+
+let heroIndex = 0;
+let heroCycleTimer = null;
+
+function renderHeroDots() {
+  const dotsEl = document.getElementById('hero-dots');
+  if (!dotsEl) return;
+  dotsEl.innerHTML = HERO_PRODUCTS.map(function(_, i) {
+    return '<button class="hero-product-dot ' + (i === heroIndex ? 'active' : '') + '" onclick="event.stopPropagation(); setHeroProduct(' + i + ')"></button>';
+  }).join('');
+}
+
+function setHeroProduct(idx) {
+  heroIndex = idx;
+  const hp = HERO_PRODUCTS[idx];
+  const p = PRODUCTS[hp.id];
+  const imgEl = document.getElementById('hero-product-img');
+  imgEl.style.opacity = '0';
+  imgEl.style.transition = 'opacity 0.3s';
+  setTimeout(function() {
+    imgEl.src = hp.img;
+    imgEl.alt = p.name;
+    imgEl.style.opacity = '1';
+  }, 300);
+  document.getElementById('hero-product-name').textContent = p.name;
+  document.getElementById('hero-product-price').textContent = p.price;
+  const badge = document.getElementById('hero-badge');
+  badge.textContent = hp.badge;
+  badge.style.display = hp.badge ? 'block' : 'none';
+  renderHeroDots();
+  resetHeroCycle();
+}
+
+function heroProductClick() {
+  openProduct(HERO_PRODUCTS[heroIndex].id);
+}
+
+function resetHeroCycle() {
+  if (heroCycleTimer) clearInterval(heroCycleTimer);
+  heroCycleTimer = setInterval(function() {
+    heroIndex = (heroIndex + 1) % HERO_PRODUCTS.length;
+    setHeroProduct(heroIndex);
+  }, 4000);
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  renderHeroDots();
+  resetHeroCycle();
+});
 
 function sendContact() {
   const name = document.getElementById('contact-name').value.trim();
