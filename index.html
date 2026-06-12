@@ -1716,19 +1716,6 @@ footer { background: var(--black); border-top: 1px solid rgba(200,200,200,0.06);
         </div>
       </div>
     </div>
-    <div class="product-card" onclick="openProduct('thirdproduct')">
-      <div class="product-card-img">
-        <img src="https://raw.githubusercontent.com/scottmoreau82/StompGuard-Site/refs/heads/main/images/products/thirdproduct/thirdproduct-1.png" alt="ThirdProduct"/>
-      </div>
-      <div class="product-card-body">
-        <div class="product-card-unit"></div>
-        <div class="product-card-name">ThirdProduct</div>
-        <div class="product-card-footer">
-          <span class="product-card-price">$292.83</span>
-          <a class="add-btn" onclick="addToCart(event,'thirdproduct','ThirdProduct',292.83)" href="#">Add to Cart</a>
-        </div>
-      </div>
-    </div>
     <div class="product-card" onclick="openProduct('quad-cortex')">
       <div class="product-card-img">
         <img src="https://stompguard.com/cdn/shop/files/62eaf802-il_fullxfull.7575364814_alzo.jpg?v=1773128059&width=500" alt="Quad Cortex Full"/>
@@ -2024,8 +2011,7 @@ const PRICE_IDS = {
   'quad-cortex':      'price_1Tfk8QA75lXcZ5dk8aaBQqpG',
   'quad-cortex-mini': 'price_1Tfk8SA75lXcZ5dkKftH7BAZ',
   'nano-cortex':      'price_1Tfk8VA75lXcZ5dkHPo0vunb',
-  'digitech-drop':    'price_1Tfk8YA75lXcZ5dkCcE0cxhq',
-  'thirdproduct': '292.83'
+  'digitech-drop':    'price_1Tfk8YA75lXcZ5dkCcE0cxhq'
 };
 
 let cart = {};
@@ -2331,17 +2317,6 @@ const PRODUCTS = {
     desc: 'Precision-cut acrylic protector for the Digitech Drop pedal. Keeps your most-used stomp switch safe from wear and accidental activation when you need it most.',
     specs: ['Precision Laser-cut for exact Digitech Drop fit','Protects stomp switch from accidental activation','Crystal-clear optical-grade acrylic','Tool-free installation','US manufactured'],
     images: ['https://stompguard.com/cdn/shop/files/23f2648e-il_fullxfull.6876203484_mk9h.jpg?v=1773128060&width=600','https://stompguard.com/cdn/shop/files/80403f2c-il_fullxfull.7627642180_7w3a.jpg?v=1773128059&width=600']
-  },
-  'thirdproduct': {
-    sku: '',
-    name: 'ThirdProduct',
-    price: '$292.83',
-    cartId: 'thirdproduct',
-    cartName: 'ThirdProduct',
-    cartPrice: 292.83,
-    desc: 'Another test for a new product',
-    specs: ["Laser","Test","Bacon","Titties"],
-    images: ["https://raw.githubusercontent.com/scottmoreau82/StompGuard-Site/refs/heads/main/images/products/thirdproduct/thirdproduct-1.png","https://raw.githubusercontent.com/scottmoreau82/StompGuard-Site/refs/heads/main/images/products/thirdproduct/thirdproduct-2.png","https://raw.githubusercontent.com/scottmoreau82/StompGuard-Site/refs/heads/main/images/products/thirdproduct/thirdproduct-3.png"]
   }
 };
 
@@ -2401,8 +2376,7 @@ const HERO_PRODUCTS = [
   { id: 'quad-cortex', badge: 'Best Seller', img: 'https://stompguard.com/cdn/shop/files/62eaf802-il_fullxfull.7575364814_alzo.jpg?v=1773128059&width=600' },
   { id: 'quad-cortex-mini', badge: 'New', img: 'https://stompguard.com/cdn/shop/files/26dd5755-il_fullxfull.7636746092_1utv.jpg?v=1773128060&width=600' },
   { id: 'nano-cortex', badge: '', img: 'https://stompguard.com/cdn/shop/files/d9c0fafb-il_fullxfull.6924149105_frep.jpg?v=1773128059&width=600' },
-  { id: 'digitech-drop', badge: '', img: 'https://stompguard.com/cdn/shop/files/23f2648e-il_fullxfull.6876203484_mk9h.jpg?v=1773128060&width=600' },
-  { id: 'thirdproduct', badge: '', img: 'https://raw.githubusercontent.com/scottmoreau82/StompGuard-Site/refs/heads/main/images/products/thirdproduct/thirdproduct-1.png' }
+  { id: 'digitech-drop', badge: '', img: 'https://stompguard.com/cdn/shop/files/23f2648e-il_fullxfull.6876203484_mk9h.jpg?v=1773128060&width=600' }
 ];
 
 let heroIndex = 0;
