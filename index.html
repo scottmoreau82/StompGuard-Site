@@ -2645,7 +2645,10 @@ function resetReviewTimer() {
 
 async function loadReviews() {
   try {
-    var res = await fetch('https://stompguard-site.scottmoreau82.workers.dev/reviews');
+    var controller = new AbortController();
+    var timeout = setTimeout(function(){ controller.abort(); }, 5000);
+    var res = await fetch('https://stompguard-site.scottmoreau82.workers.dev/reviews', { signal: controller.signal });
+    clearTimeout(timeout);
     if(!res.ok) throw new Error('fetch failed');
     var data = await res.json();
     if(data.reviews && data.reviews.length > 0) {
