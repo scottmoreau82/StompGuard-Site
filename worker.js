@@ -199,6 +199,8 @@ export default {
 
         // ── Reverb received feedback (requires personal token, read_feedback scope) ──
         const REVERB_TOKEN = env.REVERB_TOKEN || '';
+        const debug = url.searchParams.get('debug') === '1';
+        let debugInfo = {};
         if (REVERB_TOKEN) {
           try {
             const reverbRes = await fetch(
@@ -210,6 +212,13 @@ export default {
                   'Authorization': `Bearer ${REVERB_TOKEN}`
               } }
             );
+            if (debug) {
+              const txt = await reverbRes.clone().text();
+              debugInfo.reverb_status = reverbRes.status;
+              debugInfo.reverb_body = txt.slice(0, 1500);
+              debugInfo.token_present = true;
+              debugInfo.token_len = REVERB_TOKEN.length;
+            }
             if (reverbRes.ok) {
               const reverbData = await reverbRes.json();
               const entries = reverbData.feedback || reverbData._embedded?.feedback || [];
@@ -233,8 +242,8 @@ export default {
                 });
               }
             }
-          } catch(e) { /* Reverb unavailable */ }
-        }
+          } catch(e) { if(debug) debugInfo.reverb_error = String(e); }
+        } else { if(debug) debugInfo.token_present = false; }
 
         // ── Etsy listing reviews ──
         const ETSY_KEY = env.ETSY_API_KEY || '';
@@ -290,7 +299,7 @@ export default {
 
         // Shuffle and limit to 30
         reviews.sort(() => Math.random() - 0.5);
-        const result = JSON.stringify({ reviews: reviews.slice(0, 30), count: reviews.length });
+        const result = JSON.stringify({ reviews: reviews.slice(0, 30), count: reviews.length, ...(debug ? { debug: debugInfo } : {}) });
 
         // Cache for 1 hour
         await env.SG_CACHE.put(cacheKey, result, { expirationTtl: 3600 });
