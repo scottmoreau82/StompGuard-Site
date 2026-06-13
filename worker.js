@@ -194,30 +194,44 @@ export default {
 
         const reviews = [];
 
-        // ── Reverb shop feedback (no key required) ──
-        try {
-          const reverbRes = await fetch(
-            'https://api.reverb.com/api/shop/stompguard/feedback?per_page=20',
-            { headers: { 'Accept': 'application/hal+json', 'Accept-Version': '3.0' } }
-          );
-          if (reverbRes.ok) {
-            const reverbData = await reverbRes.json();
-            const entries = reverbData.feedback || reverbData._embedded?.feedback || [];
-            for (const f of entries) {
-              if (!f.review || f.review.trim().length < 10) continue;
-              reviews.push({
-                source: 'reverb',
-                rating: 5, // Reverb only shows positive feedback
-                text: f.review,
-                author: f.buyer_name ? f.buyer_name.split(' ')[0] + ' ' + (f.buyer_name.split(' ')[1]?.[0] || '') + '.' : 'Verified Buyer',
-                product: f.listing_title || 'StompGuard',
-                date: f.created_at ? f.created_at.split('T')[0] : '',
-                photos: [],
-                url: 'https://reverb.com/shop/stompguard'
-              });
+        // ── Reverb received feedback (requires personal token, read_feedback scope) ──
+        const REVERB_TOKEN = env.REVERB_TOKEN || '';
+        if (REVERB_TOKEN) {
+          try {
+            const reverbRes = await fetch(
+              'https://api.reverb.com/api/my/feedback/received?per_page=30',
+              { headers: {
+                  'Accept': 'application/hal+json',
+                  'Content-Type': 'application/hal+json',
+                  'Accept-Version': '3.0',
+                  'Authorization': `Bearer ${REVERB_TOKEN}`
+              } }
+            );
+            if (reverbRes.ok) {
+              const reverbData = await reverbRes.json();
+              const entries = reverbData.feedback || reverbData._embedded?.feedback || [];
+              for (const f of entries) {
+                // Defensive field extraction — Reverb field names vary
+                const msg = f.message || f.comment || f.review || f.body || '';
+                if (!msg || msg.trim().length < 10) continue;
+                const rawName = f.from_name || f.author_name || f.reviewer_name || f.buyer_name || (f.from && f.from.name) || '';
+                const nameParts = rawName.trim().split(/\s+/);
+                const author = rawName ? nameParts[0] + (nameParts[1] ? ' ' + nameParts[1][0] + '.' : '') : 'Verified Buyer';
+                const rawDate = f.created_at || f.created || f.date || '';
+                reviews.push({
+                  source: 'reverb',
+                  rating: f.rating || 5,
+                  text: msg,
+                  author: author,
+                  product: f.listing_title || (f.listing && f.listing.title) || 'StompGuard',
+                  date: rawDate ? String(rawDate).split('T')[0] : '',
+                  photos: [],
+                  url: 'https://reverb.com/shop/stompguard'
+                });
+              }
             }
-          }
-        } catch(e) { /* Reverb unavailable */ }
+          } catch(e) { /* Reverb unavailable */ }
+        }
 
         // ── Etsy listing reviews ──
         const ETSY_KEY = env.ETSY_API_KEY || '';
