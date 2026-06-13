@@ -221,24 +221,26 @@ export default {
             }
             if (reverbRes.ok) {
               const reverbData = await reverbRes.json();
-              const entries = reverbData.feedback || reverbData._embedded?.feedback || [];
+              const entries = reverbData.feedbacks || reverbData.feedback || [];
               for (const f of entries) {
-                // Defensive field extraction — Reverb field names vary
-                const msg = f.message || f.comment || f.review || f.body || '';
-                if (!msg || msg.trim().length < 10) continue;
-                const rawName = f.from_name || f.author_name || f.reviewer_name || f.buyer_name || (f.from && f.from.name) || '';
-                const nameParts = rawName.trim().split(/\s+/);
-                const author = rawName ? nameParts[0] + (nameParts[1] ? ' ' + nameParts[1][0] + '.' : '') : 'Verified Buyer';
-                const rawDate = f.created_at || f.created || f.date || '';
+                // Only seller feedback (reviews about this shop), with actual text
+                if (f.type && f.type !== 'seller') continue;
+                const msg = (f.message || '').trim();
+                if (msg.length < 5) continue;
+                const rawName = f.author_name || '';
+                // author_name already comes as "Greg K." format from Reverb
+                const author = rawName || 'Verified Buyer';
+                const rawDate = f.created_at || '';
+                const listingUrl = (f._links && f._links.listing && f._links.listing.href) || 'https://reverb.com/shop/stompguard';
                 reviews.push({
                   source: 'reverb',
                   rating: f.rating || 5,
                   text: msg,
                   author: author,
-                  product: f.listing_title || (f.listing && f.listing.title) || 'StompGuard',
+                  product: f.order_title || 'StompGuard',
                   date: rawDate ? String(rawDate).split('T')[0] : '',
                   photos: [],
-                  url: 'https://reverb.com/shop/stompguard'
+                  url: listingUrl
                 });
               }
             }
