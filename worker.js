@@ -180,6 +180,114 @@ export default {
       }
     }
 
+    // ── GET /reviews ──
+    if (url.pathname === '/reviews' && request.method === 'GET') {
+      try {
+        // Cache key
+        const cacheKey = 'sg_reviews_v1';
+        const cached = await env.SG_CACHE.get(cacheKey);
+        if (cached) {
+          return new Response(cached, {
+            headers: { 'Content-Type': 'application/json', ...CORS }
+          });
+        }
+
+        const reviews = [];
+
+        // ── Reverb shop feedback (no key required) ──
+        try {
+          const reverbRes = await fetch(
+            'https://api.reverb.com/api/shop/stompguard/feedback?per_page=20',
+            { headers: { 'Accept': 'application/hal+json', 'Accept-Version': '3.0' } }
+          );
+          if (reverbRes.ok) {
+            const reverbData = await reverbRes.json();
+            const entries = reverbData.feedback || reverbData._embedded?.feedback || [];
+            for (const f of entries) {
+              if (!f.review || f.review.trim().length < 10) continue;
+              reviews.push({
+                source: 'reverb',
+                rating: 5, // Reverb only shows positive feedback
+                text: f.review,
+                author: f.buyer_name ? f.buyer_name.split(' ')[0] + ' ' + (f.buyer_name.split(' ')[1]?.[0] || '') + '.' : 'Verified Buyer',
+                product: f.listing_title || 'StompGuard',
+                date: f.created_at ? f.created_at.split('T')[0] : '',
+                photos: [],
+                url: 'https://reverb.com/shop/stompguard'
+              });
+            }
+          }
+        } catch(e) { /* Reverb unavailable */ }
+
+        // ── Etsy listing reviews ──
+        const ETSY_KEY = env.ETSY_API_KEY || '';
+        if (ETSY_KEY && ETSY_KEY !== 'PENDING') {
+          const listingIds = [4445139310, 4436903537, 4308214657, 4308255862, 4308221211];
+          for (const lid of listingIds) {
+            try {
+              const etsyRes = await fetch(
+                \`https://openapi.etsy.com/v3/application/listings/\${lid}/reviews?limit=10\`,
+                { headers: { 'x-api-key': ETSY_KEY } }
+              );
+              if (!etsyRes.ok) continue;
+              const etsyData = await etsyRes.json();
+              for (const r of (etsyData.results || [])) {
+                if (!r.review || r.review.trim().length < 10) continue;
+                // Fetch listing title
+                let product = 'StompGuard';
+                try {
+                  const lRes = await fetch(
+                    \`https://openapi.etsy.com/v3/application/listings/\${lid}\`,
+                    { headers: { 'x-api-key': ETSY_KEY } }
+                  );
+                  if (lRes.ok) { const l = await lRes.json(); product = l.title || product; }
+                } catch(e) {}
+                // Fetch review images if any
+                const photos = [];
+                try {
+                  const imgRes = await fetch(
+                    \`https://openapi.etsy.com/v3/application/transactions/\${r.transaction_id}/images\`,
+                    { headers: { 'x-api-key': ETSY_KEY } }
+                  );
+                  if (imgRes.ok) {
+                    const imgData = await imgRes.json();
+                    for (const img of (imgData.results || []).slice(0,3)) {
+                      if (img.url_170x135) photos.push(img.url_170x135);
+                    }
+                  }
+                } catch(e) {}
+                reviews.push({
+                  source: 'etsy',
+                  rating: r.rating || 5,
+                  text: r.review,
+                  author: r.reviewer_name ? r.reviewer_name.split(' ')[0] + ' ' + (r.reviewer_name.split(' ')[1]?.[0] || '') + '.' : 'Verified Buyer',
+                  product: product,
+                  date: r.created_timestamp ? new Date(r.created_timestamp*1000).toISOString().split('T')[0] : '',
+                  photos,
+                  url: \`https://www.etsy.com/listing/\${lid}\`
+                });
+              }
+            } catch(e) { /* listing unavailable */ }
+          }
+        }
+
+        // Shuffle and limit to 30
+        reviews.sort(() => Math.random() - 0.5);
+        const result = JSON.stringify({ reviews: reviews.slice(0, 30), count: reviews.length });
+
+        // Cache for 1 hour
+        await env.SG_CACHE.put(cacheKey, result, { expirationTtl: 3600 });
+
+        return new Response(result, {
+          headers: { 'Content-Type': 'application/json', ...CORS }
+        });
+      } catch(err) {
+        return new Response(JSON.stringify({ reviews: [], error: err.message }), {
+          status: 500, headers: { 'Content-Type': 'application/json', ...CORS }
+        });
+      }
+    }
+
     return new Response('Not found', { status: 404 });
   }
 };
