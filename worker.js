@@ -226,7 +226,7 @@ export default {
           for (const lid of listingIds) {
             try {
               const etsyRes = await fetch(
-                \`https://openapi.etsy.com/v3/application/listings/\${lid}/reviews?limit=10\`,
+                `https://openapi.etsy.com/v3/application/listings/\${lid}/reviews?limit=10`,
                 { headers: { 'x-api-key': ETSY_KEY } }
               );
               if (!etsyRes.ok) continue;
@@ -237,7 +237,7 @@ export default {
                 let product = 'StompGuard';
                 try {
                   const lRes = await fetch(
-                    \`https://openapi.etsy.com/v3/application/listings/\${lid}\`,
+                    `https://openapi.etsy.com/v3/application/listings/\${lid}`,
                     { headers: { 'x-api-key': ETSY_KEY } }
                   );
                   if (lRes.ok) { const l = await lRes.json(); product = l.title || product; }
@@ -246,7 +246,7 @@ export default {
                 const photos = [];
                 try {
                   const imgRes = await fetch(
-                    \`https://openapi.etsy.com/v3/application/transactions/\${r.transaction_id}/images\`,
+                    `https://openapi.etsy.com/v3/application/transactions/\${r.transaction_id}/images`,
                     { headers: { 'x-api-key': ETSY_KEY } }
                   );
                   if (imgRes.ok) {
@@ -264,7 +264,7 @@ export default {
                   product: product,
                   date: r.created_timestamp ? new Date(r.created_timestamp*1000).toISOString().split('T')[0] : '',
                   photos,
-                  url: \`https://www.etsy.com/listing/\${lid}\`
+                  url: `https://www.etsy.com/listing/\${lid}`
                 });
               }
             } catch(e) { /* listing unavailable */ }
