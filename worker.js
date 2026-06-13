@@ -183,13 +183,16 @@ export default {
     // ── GET /reviews ──
     if (url.pathname === '/reviews' && request.method === 'GET') {
       try {
-        // Cache key
-        const cacheKey = 'sg_reviews_v1';
-        const cached = await env.SG_CACHE.get(cacheKey);
-        if (cached) {
-          return new Response(cached, {
-            headers: { 'Content-Type': 'application/json', ...CORS }
-          });
+        // Cache key — bumped to v2 after adding REVERB_TOKEN
+        const cacheKey = 'sg_reviews_v2';
+        const noCache = url.searchParams.get('nocache') === '1';
+        if (!noCache) {
+          const cached = await env.SG_CACHE.get(cacheKey);
+          if (cached) {
+            return new Response(cached, {
+              headers: { 'Content-Type': 'application/json', ...CORS }
+            });
+          }
         }
 
         const reviews = [];
