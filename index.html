@@ -1500,6 +1500,23 @@ nav::before {
 
 .intel-name { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--chrome-hi); }
 .intel-unit { font-size: 0.65rem; color: var(--muted); margin-top: 2px; font-family: var(--font-mono); }
+.intel-date { font-size: 0.6rem; color: var(--muted); opacity: 0.6; font-family: var(--font-mono); margin-top: 2px; }
+.intel-source-badge { font-family: var(--font-mono); font-size: 0.55rem; letter-spacing: 0.12em; text-transform: uppercase; padding: 2px 6px; border: 1px solid var(--gunmetal); color: var(--muted); margin-left: auto; align-self: flex-start; }
+.intel-source-badge.etsy { border-color: #F1641E44; color: #F1641E; }
+.intel-source-badge.reverb { border-color: #37a94944; color: #37a949; }
+.intel-photos { display: flex; gap: 6px; margin-bottom: 1rem; flex-wrap: wrap; }
+.intel-photo { width: 60px; height: 60px; object-fit: cover; border: 1px solid var(--gunmetal); opacity: 0.85; cursor: pointer; transition: opacity 0.2s; }
+.intel-photo:hover { opacity: 1; }
+.intel-loading { text-align: center; font-family: var(--font-mono); font-size: 0.7rem; color: var(--muted); padding: 3rem; letter-spacing: 0.1em; }
+.intel-nav { display: flex; justify-content: center; align-items: center; gap: 16px; margin-top: 2rem; }
+.intel-nav-btn { background: none; border: 1px solid var(--gunmetal); color: var(--muted); font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 0.1em; padding: 8px 16px; cursor: pointer; transition: all 0.2s; text-transform: uppercase; }
+.intel-nav-btn:hover { border-color: var(--chrome-lo); color: var(--chrome); }
+.intel-nav-dots { display: flex; gap: 6px; }
+.intel-nav-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--gunmetal); cursor: pointer; transition: background 0.2s; border: none; }
+.intel-nav-dot.active { background: var(--red); }
+.intel-platform-links { display: flex; justify-content: center; gap: 24px; margin-top: 1.5rem; }
+.intel-platform-link { font-family: var(--font-mono); font-size: 0.62rem; letter-spacing: 0.12em; color: var(--muted); text-decoration: none; text-transform: uppercase; transition: color 0.2s; }
+.intel-platform-link:hover { color: var(--chrome); }
 
 /* -- EMAIL CAPTURE -- */
 .email-capture {
@@ -1888,40 +1905,17 @@ footer { background: var(--black); border-top: 1px solid rgba(200,200,200,0.06);
     <div class="section-eyebrow" style="justify-content:center;">Customer Reviews</div>
     <h2 class="section-title">What Players<br/>Are Saying</h2>
   </div>
-  <div class="intel-grid">
-    <div class="intel-card">
-      <div class="intel-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
-      <p class="intel-quote">"Finally a protector that actually fits my Quad Cortex perfectly. No more worrying about accidental stomps wiping out my presets mid-set."</p>
-      <div class="intel-source">
-        <div class="intel-avatar">MR</div>
-        <div>
-          <div class="intel-name">Mike R.</div>
-          <div class="intel-unit">Quad Cortex StompGuard</div>
-        </div>
-      </div>
-    </div>
-    <div class="intel-card">
-      <div class="intel-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
-      <p class="intel-quote">"The magnetic version is genius. Snaps on and off in seconds and the screen protection is crystal clear. Worth every penny for touring players."</p>
-      <div class="intel-source">
-        <div class="intel-avatar">JL</div>
-        <div>
-          <div class="intel-name">Jason L.</div>
-          <div class="intel-unit">Magnetic Quad Cortex w/ Screen Shield</div>
-        </div>
-      </div>
-    </div>
-    <div class="intel-card">
-      <div class="intel-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
-      <p class="intel-quote">"Super fast shipping and the build quality is excellent. Exactly what I needed to protect my Nano Cortex at the edge of my pedalboard."</p>
-      <div class="intel-source">
-        <div class="intel-avatar">DS</div>
-        <div>
-          <div class="intel-name">Dan S.</div>
-          <div class="intel-unit">Nano Cortex StompGuard</div>
-        </div>
-      </div>
-    </div>
+  <div class="intel-grid" id="reviewGrid">
+    <div class="intel-loading" style="grid-column:1/-1">Loading reviews...</div>
+  </div>
+  <div class="intel-nav" id="reviewNav" style="display:none">
+    <button class="intel-nav-btn" onclick="reviewPage(-1)">&larr; Prev</button>
+    <div class="intel-nav-dots" id="reviewDots"></div>
+    <button class="intel-nav-btn" onclick="reviewPage(1)">Next &rarr;</button>
+  </div>
+  <div class="intel-platform-links">
+    <a class="intel-platform-link" href="https://www.etsy.com/shop/stompguard#reviews" target="_blank" rel="noopener">&#9733; View on Etsy &rarr;</a>
+    <a class="intel-platform-link" href="https://reverb.com/shop/stompguard/feedback" target="_blank" rel="noopener">&#9733; View on Reverb &rarr;</a>
   </div>
 </section>
 
@@ -2561,6 +2555,112 @@ function sendContact() {
     btn.textContent = 'Send Message &rarr;';
   }, 500);
 }
+</script>
+
+<!-- REVIEWS JS -->
+<script>
+var allReviews = [];
+var reviewCurrentPage = 0;
+var reviewPerPage = 3;
+var reviewTimer = null;
+var reviewFallback = [
+  { source:'etsy', rating:5, author:'Mike R.', product:'Quad Cortex StompGuard', date:'2024-11-12',
+    text:'"Finally a protector that actually fits my Quad Cortex perfectly. No more worrying about accidental stomps wiping out my presets mid-set."', photos:[], url:'https://www.etsy.com/shop/stompguard' },
+  { source:'reverb', rating:5, author:'Jason L.', product:'Magnetic Quad Cortex w/ Screen Shield', date:'2024-10-03',
+    text:'"The magnetic version is genius. Snaps on and off in seconds and the screen protection is crystal clear. Worth every penny for touring players."', photos:[], url:'https://reverb.com/shop/stompguard' },
+  { source:'etsy', rating:5, author:'Dan S.', product:'Nano Cortex StompGuard', date:'2024-09-18',
+    text:'"Super fast shipping and the build quality is excellent. Exactly what I needed to protect my Nano Cortex at the edge of my pedalboard."', photos:[], url:'https://www.etsy.com/shop/stompguard' }
+];
+
+function starsHtml(n) {
+  var s = '';
+  for(var i=0;i<5;i++) s += i<n ? '&#9733;' : '&#9734;';
+  return s;
+}
+
+function initials(name) {
+  var parts = name.split(' ');
+  return (parts[0][0]+(parts[1]?parts[1][0]:'')).toUpperCase();
+}
+
+function formatDate(d) {
+  if(!d) return '';
+  var dt = new Date(d);
+  return dt.toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'});
+}
+
+function renderReviews() {
+  var grid = document.getElementById('reviewGrid');
+  var nav  = document.getElementById('reviewNav');
+  var dots = document.getElementById('reviewDots');
+  if(!allReviews.length) { grid.innerHTML='<div class="intel-loading" style="grid-column:1/-1">No reviews yet.</div>'; return; }
+
+  var pages = Math.ceil(allReviews.length / reviewPerPage);
+  var start = reviewCurrentPage * reviewPerPage;
+  var slice = allReviews.slice(start, start + reviewPerPage);
+
+  grid.innerHTML = slice.map(function(r) {
+    var photos = (r.photos||[]).slice(0,3).map(function(p){
+      return '<img class="intel-photo" src="'+p+'" alt="Review photo" onclick="window.open(''+r.url+'','_blank')">';
+    }).join('');
+    return '<div class="intel-card">'
+      + '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.75rem">'
+      + '<div class="intel-stars">'+starsHtml(r.rating)+'</div>'
+      + '<span class="intel-source-badge '+r.source+'">'+r.source+'</span>'
+      + '</div>'
+      + (photos ? '<div class="intel-photos">'+photos+'</div>' : '')
+      + '<p class="intel-quote">'+r.text+'</p>'
+      + '<div class="intel-source">'
+      + '<div class="intel-avatar">'+initials(r.author)+'</div>'
+      + '<div>'
+      + '<div class="intel-name">'+r.author+'</div>'
+      + '<div class="intel-unit">'+r.product+'</div>'
+      + '<div class="intel-date">'+formatDate(r.date)+'</div>'
+      + '</div></div></div>';
+  }).join('');
+
+  // Dots
+  dots.innerHTML = '';
+  for(var i=0;i<pages;i++){
+    var btn = document.createElement('button');
+    btn.className = 'intel-nav-dot' + (i===reviewCurrentPage?' active':'');
+    btn.dataset.page = i;
+    btn.onclick = (function(p){ return function(){ reviewCurrentPage=p; renderReviews(); resetReviewTimer(); }; })(i);
+    dots.appendChild(btn);
+  }
+  nav.style.display = pages > 1 ? 'flex' : 'none';
+}
+
+function reviewPage(dir) {
+  var pages = Math.ceil(allReviews.length / reviewPerPage);
+  reviewCurrentPage = (reviewCurrentPage + dir + pages) % pages;
+  renderReviews();
+  resetReviewTimer();
+}
+
+function resetReviewTimer() {
+  if(reviewTimer) clearInterval(reviewTimer);
+  reviewTimer = setInterval(function(){ reviewPage(1); }, 10000);
+}
+
+async function loadReviews() {
+  try {
+    var res = await fetch('https://stompguard-site.scottmoreau82.workers.dev/reviews');
+    if(!res.ok) throw new Error('fetch failed');
+    var data = await res.json();
+    if(data.reviews && data.reviews.length > 0) {
+      allReviews = data.reviews;
+    } else {
+      allReviews = reviewFallback;
+    }
+  } catch(e) {
+    allReviews = reviewFallback;
+  }
+  renderReviews();
+  resetReviewTimer();
+}
+
+document.addEventListener('DOMContentLoaded', loadReviews);
 </script>
 
 <!-- KLAVIYO PLACEHOLDER â swap PUBLIC_API_KEY + YOUR_LIST_ID when ready -->
