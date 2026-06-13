@@ -10,6 +10,23 @@ const CORS = {
   'Access-Control-Allow-Headers': 'Content-Type',
 };
 
+function fixMojibake(s) {
+  if (!s) return s;
+  // Common UTF-8-misread-as-Latin1 sequences
+  const map = {
+    'â€™': '\u2019', 'â€˜': '\u2018', 'â€œ': '\u201C', 'â€\u009d': '\u201D',
+    'â€"': '\u2014', 'â€"': '\u2013', 'â€¦': '\u2026',
+    'Ã©': '\u00e9', 'Ã¨': '\u00e8', 'Ã ': '\u00e0', 'Ã¼': '\u00fc', 'Ã±': '\u00f1'
+  };
+  let out = s;
+  for (const [bad, good] of Object.entries(map)) {
+    out = out.split(bad).join(good);
+  }
+  // Strip leftover emoji-mojibake (ðŸ... sequences) and other stray control bytes
+  out = out.replace(/ð[\u0080-\u00ff]{2,3}/g, '').replace(/[\u0080-\u009f]/g, '');
+  return out.trim();
+}
+
 function generateOrderNumber() {
   const ts = Date.now().toString(36).toUpperCase();
   const rand = Math.random().toString(36).substring(2, 6).toUpperCase();
@@ -225,7 +242,7 @@ export default {
               for (const f of entries) {
                 // Only seller feedback (reviews about this shop), with actual text
                 if (f.type && f.type !== 'seller') continue;
-                const msg = (f.message || '').trim();
+                const msg = fixMojibake((f.message || '').trim());
                 if (msg.length < 5) continue;
                 const rawName = f.author_name || '';
                 // author_name already comes as "Greg K." format from Reverb
