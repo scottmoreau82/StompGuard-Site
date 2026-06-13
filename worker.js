@@ -1,3 +1,10 @@
+import crypto from 'crypto';
+
+// Minimal hashlib wrapper
+const hashlib = {{
+  sha256: (s) => crypto.createHash('sha256').update(s).digest('hex')
+}};
+
 // StompGuard Cloudflare Worker
 // Bindings required in wrangler.toml:
 //   STRIPE_SECRET_KEY      (secret)
@@ -33,12 +40,250 @@ function generateOrderNumber() {
   return `SG-${ts}-${rand}`;
 }
 
+
+// ═════════════════════════════════════════════════════════════════
+// ADMIN DASHBOARD ROUTES
+// ═════════════════════════════════════════════════════════════════
+
+// Initialize admin users table on first deploy
+async function initAdminUsersTable(db) {
+  try {
+    await db.prepare(`
+      CREATE TABLE IF NOT EXISTS admin_users (
+        id INTEGER PRIMARY KEY,
+        username TEXT UNIQUE NOT NULL,
+        password_hash TEXT NOT NULL,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      )
+    `).run();
+    
+    // Seed with initial user if it doesn't exist
+    const existing = await db.prepare('SELECT COUNT(*) as count FROM admin_users').first();
+    if (existing.count === 0) {
+      await db.prepare(`
+        INSERT INTO admin_users (username, password_hash) 
+        VALUES (?, ?)
+      `).bind('smoreau', 'd874a8f5f102248e321210704619fd4b388fc6da833b7df00e42fd050b15f9d6').run();
+    }
+  } catch(e) {
+    // Table might already exist, that's fine
+  }
+}
+
+// Auth helpers
+async function verifyToken(token, env) {
+  if (!token) return null;
+  const data = await env.SG_SESSIONS.get(token);
+  if (!data) return null;
+  const session = JSON.parse(data);
+  if (Date.now() > session.expires) {
+    await env.SG_SESSIONS.delete(token);
+    return null;
+  }
+  return session;
+}
+
+async function createToken(username, env) {
+  const token = Math.random().toString(36).slice(2) + Date.now().toString(36);
+  const expires = Date.now() + (24 * 60 * 60 * 1000); // 1 day
+  await env.SG_SESSIONS.put(token, JSON.stringify({ username, expires }) , { expirationTtl: 86400 });
+  return token;
+}
+
+// POST /admin/login
+async function handleAdminLogin(request, env) {
+  const { username, password } = await request.json();
+  
+  try {
+    await initAdminUsersTable(env.DB);
+    const user = await env.DB.prepare(
+      'SELECT password_hash FROM admin_users WHERE username = ? LIMIT 1'
+    ).bind(username).first();
+    
+    if (!user) return jsonResponse({ error: 'Invalid credentials' }, 401);
+    
+    const passwordHash = hashlib.sha256(password).hexdigest();
+    if (user.password_hash !== passwordHash) {
+      return jsonResponse({ error: 'Invalid credentials' }, 401);
+    }
+    
+    const token = await createToken(username, env);
+    return jsonResponse({ token, username });
+  } catch(err) {
+    return jsonResponse({ error: err.message }, 500);
+  }
+}
+
+// GET /admin/orders
+async function handleAdminOrders(request, env) {
+  const url = new URL(request.url);
+  const token = url.searchParams.get('token');
+  const filterDate = url.searchParams.get('date');
+  const filterEmail = url.searchParams.get('email');
+  const filterStatus = url.searchParams.get('status');
+  
+  const session = await verifyToken(token, env);
+  if (!session) return jsonResponse({ error: 'Unauthorized' }, 401);
+  
+  try {
+    let query = 'SELECT * FROM orders';
+    const params = [];
+    const conditions = [];
+    
+    if (filterDate) {
+      conditions.push('DATE(created_at) = ?');
+      params.push(filterDate);
+    }
+    if (filterEmail) {
+      conditions.push('customer_email LIKE ?');
+      params.push('%' + filterEmail + '%');
+    }
+    if (filterStatus) {
+      conditions.push('status = ?');
+      params.push(filterStatus);
+    }
+    
+    if (conditions.length > 0) {
+      query += ' WHERE ' + conditions.join(' AND ');
+    }
+    query += ' ORDER BY created_at DESC LIMIT 500';
+    
+    let stmt = env.DB.prepare(query);
+    for (const p of params) stmt = stmt.bind(p);
+    const orders = await stmt.all();
+    
+    return jsonResponse({ orders: orders.results || [] });
+  } catch(err) {
+    return jsonResponse({ error: err.message }, 500);
+  }
+}
+
+// GET /admin/products
+async function handleAdminProducts(request, env) {
+  const url = new URL(request.url);
+  const token = url.searchParams.get('token');
+  
+  const session = await verifyToken(token, env);
+  if (!session) return jsonResponse({ error: 'Unauthorized' }, 401);
+  
+  try {
+    // Read products from index.html
+    const indexRes = await fetch('https://stompguard-site.pages.dev/');
+    const html = await indexRes.text();
+    
+    // Parse PRODUCTS array from script (naive but works for structured data)
+    const match = html.match(/const PRODUCTS = (\[.*?\]);/s);
+    if (!match) return jsonResponse({ products: [] });
+    
+    const productsJson = match[1];
+    const products = eval(productsJson); // Safe here since it's from our own file
+    
+    return jsonResponse({ products });
+  } catch(err) {
+    return jsonResponse({ error: err.message }, 500);
+  }
+}
+
+// GET /admin/export/orders
+async function handleAdminExport(request, env) {
+  const url = new URL(request.url);
+  const format = url.searchParams.get('format') || 'csv';
+  const token = url.searchParams.get('token');
+  const filterDate = url.searchParams.get('date');
+  const filterEmail = url.searchParams.get('email');
+  const filterStatus = url.searchParams.get('status');
+  
+  const session = await verifyToken(token, env);
+  if (!session) return jsonResponse({ error: 'Unauthorized' }, 401);
+  
+  try {
+    let query = 'SELECT * FROM orders';
+    const params = [];
+    const conditions = [];
+    
+    if (filterDate) {
+      conditions.push('DATE(created_at) = ?');
+      params.push(filterDate);
+    }
+    if (filterEmail) {
+      conditions.push('customer_email LIKE ?');
+      params.push('%' + filterEmail + '%');
+    }
+    if (filterStatus) {
+      conditions.push('status = ?');
+      params.push(filterStatus);
+    }
+    
+    if (conditions.length > 0) {
+      query += ' WHERE ' + conditions.join(' AND ');
+    }
+    query += ' ORDER BY created_at DESC';
+    
+    let stmt = env.DB.prepare(query);
+    for (const p of params) stmt = stmt.bind(p);
+    const result = await stmt.all();
+    const orders = result.results || [];
+    
+    if (format === 'csv') {
+      const headers = ['Order #', 'Date', 'Customer', 'Email', 'Amount', 'Status', 'Stripe ID'];
+      const rows = orders.map(o => [
+        o.order_number,
+        new Date(o.created_at).toISOString().split('T')[0],
+        o.customer_name,
+        o.customer_email,
+        '$' + (o.amount / 100).toFixed(2),
+        o.status,
+        o.stripe_session_id
+      ]);
+      
+      const csv = [headers, ...rows]
+        .map(row => row.map(v => '"' + String(v).replace(/"/g, '""') + '"').join(','))
+        .join('\n');
+      
+      return new Response(csv, {
+        status: 200,
+        headers: {
+          'Content-Type': 'text/csv',
+          'Content-Disposition': 'attachment; filename="orders.csv"'
+        }
+      });
+    }
+    
+    return jsonResponse({ error: 'Unsupported format' }, 400);
+  } catch(err) {
+    return jsonResponse({ error: err.message }, 500);
+  }
+}
+
+// Route dispatcher
+function isAdminRoute(pathname) {
+  return pathname.startsWith('/admin/');
+}
+
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
 
     if (request.method === 'OPTIONS') {
       return new Response(null, { headers: CORS });
+    }
+
+    // ── ADMIN ROUTES ──
+    if (url.pathname === '/admin/login' && request.method === 'POST') {
+      return handleAdminLogin(request, env);
+    }
+    if (url.pathname === '/admin/orders' && request.method === 'GET') {
+      return handleAdminOrders(request, env);
+    }
+    if (url.pathname === '/admin/products' && request.method === 'GET') {
+      return handleAdminProducts(request, env);
+    }
+    if (url.pathname.startsWith('/admin/export/') && request.method === 'GET') {
+      return handleAdminExport(request, env);
+    }
+    if (url.pathname === '/admin' || url.pathname === '/admin/') {
+      return new Response(null, { status: 301, headers: { 'Location': '/admin.html' } });
     }
 
     // ── POST /checkout ──
