@@ -2534,7 +2534,6 @@ function resetHeroCycle() {
 document.addEventListener('DOMContentLoaded', function() {
   renderHeroDots();
   resetHeroCycle();
-  loadReviews();
 });
 
 function sendContact() {
@@ -2664,7 +2663,12 @@ async function loadReviews() {
   resetReviewTimer();
 }
 
-
+// Robust init — fire immediately if DOM already loaded, else wait
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', loadReviews);
+} else {
+  loadReviews();
+}
 </script>
 
 <!-- KLAVIYO PLACEHOLDER â swap PUBLIC_API_KEY + YOUR_LIST_ID when ready -->
