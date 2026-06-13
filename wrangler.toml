@@ -2,6 +2,10 @@ name = "stompguard-worker"
 main = "worker.js"
 compatibility_date = "2024-01-01"
 
+[[kv_namespaces]]
+binding = "SG_CACHE"
+id = "37eb1de293e645c3901db21e52523b12"
+
 [[d1_databases]]
 binding = "DB"
 database_name = "stompguard-orders"
